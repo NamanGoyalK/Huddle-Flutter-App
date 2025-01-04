@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+
+class DisplayText extends StatelessWidget {
+  final String displayText;
+
+  const DisplayText({
+    super.key,
+    required this.displayText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Text(
+        displayText,
+        style: const TextStyle(
+          fontSize: 40,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class SubDisplayText extends StatelessWidget {
+  final String subDisplayText;
+
+  const SubDisplayText({
+    super.key,
+    required this.subDisplayText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Text(
+        subDisplayText,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
+}
+
+// import 'package:flutter/material.dart';
+
+class PageTitleSideWays extends StatelessWidget {
+  const PageTitleSideWays({
+    super.key,
+    required bool isDrawerOpen,
+    required this.pageTitle,
+  }) : _isDrawerOpen = isDrawerOpen;
+
+  final bool _isDrawerOpen;
+  final String pageTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return Stack(
+        children: [
+          Positioned(
+            top: 30,
+            left: 100,
+            child: Text(
+              'HUDDLE \\\\\\',
+              style: TextStyle(
+                fontSize: 66,
+                fontWeight: FontWeight.w200,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 20,
+            left: 0,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 280),
+              opacity: _isDrawerOpen ? 0.0 : 1.0,
+              child: RotatedBox(
+                quarterTurns: 3,
+                child: Text(
+                  '$pageTitle \\\\\\',
+                  style: const TextStyle(
+                    fontSize: 54,
+                    fontWeight: FontWeight.w100,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Positioned(
+        bottom: 20,
+        left: 0,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 280),
+          opacity: _isDrawerOpen ? 0.0 : 1.0, // Fade text when drawer is open
+          child: RotatedBox(
+            quarterTurns: 3,
+            child: Row(
+              children: [
+                Text(
+                  'HUDDLE',
+                  style: TextStyle(
+                    fontSize: 54,
+                    fontWeight: FontWeight.w200,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                Text(
+                  ' \\ $pageTitle \\\\\\',
+                  style: const TextStyle(
+                    fontSize: 54,
+                    fontWeight: FontWeight.w100,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+}
