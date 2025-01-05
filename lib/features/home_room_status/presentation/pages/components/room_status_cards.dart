@@ -27,7 +27,7 @@ class RoomStatusCards extends StatelessWidget {
       top: 140,
       left: 80,
       right: -4,
-      bottom: 0,
+      bottom: 80,
       child: ClipRect(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

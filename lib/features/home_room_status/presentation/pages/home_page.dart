@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:huddle/features/home_room_status/presentation/pages/components/room_status_cards.dart';
 
 import '../../../../common/config/theme/internal_background.dart';
 import '../../../../common/widgets/index.dart';
@@ -68,15 +69,6 @@ class HomeViewState extends State<HomeView> {
                   isDrawerOpen: state.isDrawerOpen,
                   pageTitle: 'ROOM STATUS',
                 ),
-                // Positioned(
-                //   bottom: 44,
-                //   right: 14,
-                //   child: CustomNavButton(
-                //     icon: Icons.menu,
-                //     onTap: () => showUploadBottomSheet(context),
-                //     isRotated: state.isDrawerOpen,
-                //   ),
-                // ),
                 Positioned(
                   bottom: 65,
                   right: 14,
@@ -112,30 +104,6 @@ class HomeViewState extends State<HomeView> {
         context.read<DayCubit>().toggleDrawer(isOpen);
       },
       drawer: const CustomDrawer(),
-    );
-  }
-}
-
-class RoomStatusCards extends StatelessWidget {
-  const RoomStatusCards({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Positioned(
-      top: 140, // Adjust the height as needed
-      left: 80,
-      right: -4,
-      bottom: 80,
-      child: ClipRect(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: RoomStatusCards(),
-          ),
-        ),
-      ),
     );
   }
 }
