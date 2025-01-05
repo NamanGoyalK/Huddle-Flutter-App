@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:huddle/features/room_status/presentation/pages/components/room_card.dart';
+import 'package:huddle/features/home_room_status/presentation/pages/components/room_card.dart';
 
 class RoomStatusCards extends StatelessWidget {
   const RoomStatusCards({super.key});

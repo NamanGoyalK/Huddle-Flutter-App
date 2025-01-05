@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/core/config/cubit/theme_cubit.dart';
 import 'package:huddle/features/auth/data/firebase_auth_repo.dart';
 import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
-import 'features/room_status/presentation/pages/home_page.dart';
+import 'features/home_room_status/presentation/pages/home_page.dart';
 import 'package:huddle/features/settings/data/firebase_profile_repo.dart';
 
 import 'core/config/theme/app_colors.dart';

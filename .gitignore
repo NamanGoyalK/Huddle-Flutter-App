@@ -36,6 +36,7 @@ src/
 .build/
 .packages
 .pubspec.lock
+pubspec.lock
 /build/
 
 # Symbolization related

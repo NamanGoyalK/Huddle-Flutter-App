@@ -139,7 +139,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            'Please select a status and provide a description.'),
+                            'Please select a status and provide a brief description.'),
                       ),
                     );
                   }
