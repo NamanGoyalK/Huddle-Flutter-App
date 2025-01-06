@@ -1,8 +1,11 @@
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:huddle/common/widgets/index.dart';
-import 'package:huddle/features/auth/domain/entities/app_user.dart';
-import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
+import '../../../../common/widgets/index.dart';
+import '../../../auth/domain/entities/app_user.dart';
+import '../../../auth/presentation/cubits/auth_cubit.dart';
+import '../../domain/entities/post.dart';
+import '../cubit/post_cubit.dart';
 
 // Define the enum for room statuses
 enum RoomStatus {
@@ -14,21 +17,23 @@ enum RoomStatus {
   select,
 }
 
-// Convert enum values to display-friendly strings
-String _getRoomStatusString(RoomStatus status) {
-  switch (status) {
-    case RoomStatus.gamingZone:
-      return "Gaming Zone";
-    case RoomStatus.studyZone:
-      return "Study Zone";
-    case RoomStatus.mute:
-      return "Mute";
-    case RoomStatus.noisy:
-      return "Noisy";
-    case RoomStatus.neutral:
-      return "Neutral";
-    case RoomStatus.select:
-      return "Select Status";
+// Extension for RoomStatus to string conversion
+extension RoomStatusExtension on RoomStatus {
+  String toDisplayString() {
+    switch (this) {
+      case RoomStatus.gamingZone:
+        return "Gaming Zone";
+      case RoomStatus.studyZone:
+        return "Study Zone";
+      case RoomStatus.mute:
+        return "Mute";
+      case RoomStatus.noisy:
+        return "Noisy";
+      case RoomStatus.neutral:
+        return "Neutral";
+      case RoomStatus.select:
+        return "Select Status";
+    }
   }
 }
 
@@ -54,100 +59,115 @@ class UploadPostBlock extends StatefulWidget {
 }
 
 class _UploadPostBlockState extends State<UploadPostBlock> {
-  // Define the controllers
   late TextEditingController descriptionController;
   RoomStatus selectedStatus = RoomStatus.select;
-
-  // Define Current User
   AppUser? currentUser;
 
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
     descriptionController = TextEditingController();
+    _loadCurrentUser();
   }
 
-  // Get the current user
-  void getCurrentUser() async {
+  Future<void> _loadCurrentUser() async {
     final authCubit = context.read<AuthCubit>();
-    currentUser = authCubit.currentUser;
+    setState(() {
+      currentUser = authCubit.currentUser;
+    });
+  }
+
+  void _uploadPost() {
+    if (selectedStatus == RoomStatus.select ||
+        descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Please select a status and provide a brief description.'),
+        ),
+      );
+      return;
+    }
+
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User information is not available.'),
+        ),
+      );
+      return;
+    }
+
+    final newPost = Post(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      userId: currentUser!.uid,
+      userName: currentUser!.name,
+      address: '',
+      roomNo: 0,
+      status: selectedStatus.toString(),
+      timestamp: DateTime.now(),
+      description: descriptionController.text,
+    );
+
+    context.read<PostCubit>().createPost(newPost);
+
+    // Close the bottom sheet
+    Navigator.of(context).pop();
+
+    // Show the success message after popping
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Post created successfully!'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildEditPage(context);
-  }
-
-  Padding _buildEditPage(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: _buildHandleIndicator(),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildHandleIndicator(),
+            const SizedBox(height: 16),
+            _buildHeader('C R E A T E  P O S T'),
+            const SizedBox(height: 20),
+            _buildDropdownField(
+              context,
+              'Status',
+              Icons.speaker,
+              selectedStatus,
+              RoomStatus.values,
+              (value) => DropdownMenuItem(
+                value: value,
+                child: Text(value.toDisplayString()),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: _buildHeader(context, 'C R E A T E  P O S T'),
-              ),
-              const SizedBox(height: 20),
-              _buildDropdownField<RoomStatus>(
-                context: context,
-                label: 'S T A T U S',
-                icon: Icons.speaker,
-                value: selectedStatus,
-                items: RoomStatus.values,
-                itemBuilder: (value) => DropdownMenuItem(
-                  value: value,
-                  child: Text(_getRoomStatusString(value)),
-                ),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => selectedStatus = value);
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildTextField(
-                context: context,
-                controller: descriptionController,
-                label: 'D E S C R I P T I O N',
-                hint: 'Enter a brief description',
-                icon: Icons.notes,
-                keyboardType: TextInputType.multiline,
-              ),
-              const SizedBox(height: 15),
-              ColoredButton(
-                labelText: 'C R E A T E',
-                onPressed: () {
-                  if (selectedStatus != RoomStatus.select &&
-                      descriptionController.text.isNotEmpty) {
-                    // Handle post creation logic
-                    print("Status: $selectedStatus");
-                    print("Description: ${descriptionController.text}");
-                  } else {
-                    // Show error message
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Please select a status and provide a brief description.'),
-                      ),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
+              (value) => setState(() {
+                selectedStatus = value!;
+              }),
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(
+              context,
+              descriptionController,
+              'D E S C R I P T I O N',
+              'Enter a brief description',
+              Icons.notes,
+              TextInputType.multiline,
+            ),
+            const SizedBox(height: 15),
+            ColoredButton(
+              labelText: 'Create',
+              onPressed: _uploadPost,
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -166,7 +186,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String title) {
+  Widget _buildHeader(String title) {
     return Center(
       child: Text(
         title,
@@ -174,20 +194,19 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       ),
     );
   }
-}
 
-Widget _buildDropdownField<T>({
-  required BuildContext context,
-  required String label,
-  required IconData icon,
-  required T value,
-  required List<T> items,
-  required DropdownMenuItem<T> Function(T value) itemBuilder,
-  required ValueChanged<T?> onChanged,
-}) {
-  return Center(
-    child: SizedBox(
+  Widget _buildDropdownField<T>(
+    BuildContext context,
+    String label,
+    IconData icon,
+    T value,
+    List<T> items,
+    DropdownMenuItem<T> Function(T value) itemBuilder,
+    ValueChanged<T?> onChanged,
+  ) {
+    return SizedBox(
       width: 350,
+      height: 50,
       child: DropdownButtonFormField<T>(
         decoration: InputDecoration(
           prefixIcon: Icon(icon),
@@ -202,26 +221,24 @@ Widget _buildDropdownField<T>({
         items: items.map(itemBuilder).toList(),
         onChanged: onChanged,
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildTextField({
-  required BuildContext context,
-  required TextEditingController controller,
-  required String label,
-  required String hint,
-  required IconData icon,
-  required TextInputType keyboardType,
-}) {
-  return Center(
-    child: TextFromUser(
+  Widget _buildTextField(
+    BuildContext context,
+    TextEditingController controller,
+    String label,
+    String hint,
+    IconData icon,
+    TextInputType keyboardType,
+  ) {
+    return TextFromUser(
       controller: controller,
       labelText: label,
       hintText: hint,
       icon: icon,
       keyboardType: keyboardType,
       obscureText: false,
-    ),
-  );
+    );
+  }
 }
