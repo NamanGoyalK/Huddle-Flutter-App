@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 ThemeData appThemeDark() {
   return ThemeData(
-    colorScheme: ColorScheme.dark(
-      primary: const Color.fromARGB(
+    colorScheme: const ColorScheme.dark(
+      primary: Color.fromARGB(
           255, 100, 100, 100), // Darker primary color for contrast
-      surface: const Color.fromARGB(200, 0, 0, 0), // Dark background color
-      secondary: Colors.amber[400]!, // Accent color for highlighting elements
+      surface: Color.fromARGB(200, 0, 0, 0), // Dark background color
+      secondary: Colors.teal, // Accent color for highlighting elements
       // secondary: Colors.red,
       onPrimary: Colors.white, // Color for text and icons on primary color
       onSecondary: Colors.white, // Color for text and icons on secondary color
-      surfaceBright: const Color.fromARGB(255, 49, 49, 49),
-      tertiary: const Color.fromARGB(100, 100, 100, 100),
+      surfaceBright: Color.fromARGB(255, 49, 49, 49),
+      tertiary: Color.fromARGB(100, 100, 100, 100),
     ),
     scaffoldBackgroundColor:
         const Color.fromARGB(255, 25, 25, 25), // Background color for Scaffold
@@ -38,7 +38,7 @@ ThemeData appThemeMain() {
           255, 125, 125, 125), // Primary color for light mode
       surface: const Color.fromARGB(
           199, 255, 255, 255), // Background color for light mode
-      secondary: Colors.amber[900]!, // Accent color for light mode
+      secondary: Colors.teal[700]!, // Accent color for light mode
       onPrimary: Colors.white, // Color for text and icons on primary color
       surfaceBright: const Color.fromARGB(255, 181, 181, 181),
       onSecondary: Colors.black, // Color for text and icons on secondary color

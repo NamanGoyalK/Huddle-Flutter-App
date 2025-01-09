@@ -19,10 +19,10 @@ void showThemeBottomSheet(BuildContext context) {
             Colors.orange,
             Colors.amber,
             Colors.amber[400]!,
-            Colors.yellow,
-            Colors.lime,
+            Colors.lime[600]!,
             Colors.lightGreen,
             Colors.green,
+            Colors.teal[700]!,
             Colors.teal,
             Colors.cyan,
             Colors.lightBlue,
@@ -124,7 +124,7 @@ void showThemeBottomSheet(BuildContext context) {
                   min: 0,
                   max: (accentColors.length - 1).toDouble(),
                   divisions: accentColors.length - 1,
-                  label: accentColors[sliderValue.toInt()].toString(),
+                  label: null,
                   onChanged: (value) {
                     context
                         .read<ThemeCubit>()
