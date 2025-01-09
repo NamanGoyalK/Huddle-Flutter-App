@@ -7,6 +7,7 @@ class Post {
   final String status;
   final DateTime timestamp;
   final String description;
+  final DateTime scheduledTime;
 
   Post({
     required this.id,
@@ -17,6 +18,7 @@ class Post {
     required this.status,
     required this.timestamp,
     required this.description,
+    required this.scheduledTime,
   });
 
   Post copyWith(String? status, String? description) {
@@ -29,6 +31,7 @@ class Post {
       status: status ?? this.status,
       timestamp: timestamp,
       description: description ?? this.description,
+      scheduledTime: scheduledTime,
     );
   }
 
@@ -49,13 +52,15 @@ class Post {
   //convert jason to post
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-        id: json['id'],
-        userId: json['userId'],
-        userName: json['userName'],
-        address: json['address'],
-        roomNo: json['roomNo'],
-        status: json['status'],
-        timestamp: json['timestamp'],
-        description: json['description']);
+      id: json['id'],
+      userId: json['userId'],
+      userName: json['userName'],
+      address: json['address'],
+      roomNo: json['roomNo'],
+      status: json['status'],
+      timestamp: json['timestamp'],
+      description: json['description'],
+      scheduledTime: json['scheduledTime'],
+    );
   }
 }

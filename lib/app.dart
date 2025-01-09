@@ -5,22 +5,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/core/config/cubit/theme_cubit.dart';
 import 'package:huddle/features/auth/data/firebase_auth_repo.dart';
 import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
-import 'features/home_room_status/presentation/pages/home_page.dart';
+import 'package:huddle/features/room_status_posts/data/firebase_post_repo.dart';
+import 'package:huddle/features/room_status_posts/presentation/cubit/post_cubit.dart';
 import 'package:huddle/features/settings/data/firebase_profile_repo.dart';
 
 import 'core/config/theme/app_colors.dart';
 import 'features/auth/presentation/pages/auth_page.dart';
+import 'features/home_room_status/presentation/cubit/day_cubit.dart';
+import 'features/home_room_status/presentation/pages/home_page.dart';
 import 'features/settings/presentation/cubit/profile_cubit.dart';
 
 class MyApp extends StatelessWidget {
   // This widget is the root of the application.
+  MyApp({super.key});
 
   //auth repo
   final authRepo = FirebaseAuthRepo();
 
   //profile repo
   final profileRepo = FirebaseProfileRepo();
-  MyApp({super.key});
+
+  //post repo
+  final postRepo = FirebasePostRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +49,16 @@ class MyApp extends StatelessWidget {
         //Theme Cubit
         BlocProvider<ThemeCubit>(
           create: (context) => ThemeCubit(),
+        ),
+
+        //Post Cubit
+        BlocProvider(
+          create: (context) => PostCubit(postRepo: postRepo),
+        ),
+
+        //Day Cubit
+        BlocProvider<DayCubit>(
+          create: (context) => DayCubit(),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

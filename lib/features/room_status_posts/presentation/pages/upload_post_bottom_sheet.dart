@@ -1,16 +1,18 @@
 // import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/widgets/index.dart';
 import '../../../auth/domain/entities/app_user.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
+import '../../../home_room_status/presentation/cubit/day_cubit.dart';
 import '../../domain/entities/post.dart';
 import '../cubit/post_cubit.dart';
 
 // Define the enum for room statuses
 enum RoomStatus {
-  gamingZone,
-  studyZone,
+  gaming,
+  studying,
   mute,
   noisy,
   neutral,
@@ -21,10 +23,10 @@ enum RoomStatus {
 extension RoomStatusExtension on RoomStatus {
   String toDisplayString() {
     switch (this) {
-      case RoomStatus.gamingZone:
-        return "Gaming Zone";
-      case RoomStatus.studyZone:
-        return "Study Zone";
+      case RoomStatus.gaming:
+        return "Gaming";
+      case RoomStatus.studying:
+        return "Studying";
       case RoomStatus.mute:
         return "Mute";
       case RoomStatus.noisy:
@@ -61,7 +63,11 @@ class UploadPostBlock extends StatefulWidget {
 class _UploadPostBlockState extends State<UploadPostBlock> {
   late TextEditingController descriptionController;
   RoomStatus selectedStatus = RoomStatus.select;
+  final int todayIndex = DateTime.now().weekday -
+      1; // Assuming Monday is the first day of the week
   AppUser? currentUser;
+  String? errorMessage;
+  DateTime selectedTime = DateTime.now(); // Store the selected time
 
   @override
   void initState() {
@@ -78,25 +84,43 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
   }
 
   void _uploadPost() {
+    setState(() {
+      errorMessage = null; // Clear any previous error message
+    });
+
     if (selectedStatus == RoomStatus.select ||
         descriptionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Please select a status and provide a brief description.'),
-        ),
-      );
+      setState(() {
+        errorMessage =
+            'Please select a status and provide a brief description.';
+      });
       return;
     }
 
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User information is not available.'),
-        ),
-      );
+      setState(() {
+        errorMessage = 'User information is not available.';
+      });
       return;
     }
+
+    // Get the selected day index from the DayCubit
+    final dayCubit = context.read<DayCubit>();
+    final selectedDayIndex = dayCubit.state.selectedIndex;
+
+    // Calculate the scheduled date based on the selected day index
+    final now = DateTime.now();
+    final daysDifference = selectedDayIndex - now.weekday + 1;
+    final scheduledDate = now.add(Duration(days: daysDifference));
+
+    // Combine the selected date and time
+    final scheduledTime = DateTime(
+      scheduledDate.year,
+      scheduledDate.month,
+      scheduledDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
 
     final newPost = Post(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -107,6 +131,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       status: selectedStatus.toString(),
       timestamp: DateTime.now(),
       description: descriptionController.text,
+      scheduledTime: scheduledTime,
     );
 
     context.read<PostCubit>().createPost(newPost);
@@ -116,8 +141,12 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
 
     // Show the success message after popping
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Post created successfully!'),
+      SnackBar(
+        content: const Text(
+          'Post created successfully!',
+          style: TextStyle(color: Colors.green),
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
     );
   }
@@ -136,7 +165,41 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
           children: [
             _buildHandleIndicator(),
             const SizedBox(height: 16),
-            _buildHeader('C R E A T E  P O S T'),
+            _buildHeader('C R E A T E   P O S T'),
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(7, (index) {
+                return BlocBuilder<DayCubit, DayState>(
+                  builder: (context, state) {
+                    bool isToday = index == todayIndex;
+                    return DrawerWeekButton(
+                      day: 'MTWTFSS'[index],
+                      isSelected: state.selectedIndex == index,
+                      isToday: isToday,
+                      onTap: () {
+                        context.read<DayCubit>().selectDay(index);
+                      },
+                    );
+                  },
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 100,
+              width: 350,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime: DateTime.now(),
+                onDateTimeChanged: (DateTime value) {
+                  setState(() {
+                    selectedTime = value; // Update the selected time
+                  });
+                },
+              ),
+            ),
             const SizedBox(height: 20),
             _buildDropdownField(
               context,
@@ -162,8 +225,15 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
               TextInputType.multiline,
             ),
             const SizedBox(height: 15),
+            if (errorMessage != null) ...[
+              Text(
+                errorMessage!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 10),
+            ],
             ColoredButton(
-              labelText: 'Create',
+              labelText: 'C R E A T E',
               onPressed: _uploadPost,
             ),
             const SizedBox(height: 20),
