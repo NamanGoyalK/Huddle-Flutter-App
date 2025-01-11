@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Post {
   final String id;
   final String userId;
@@ -21,7 +23,7 @@ class Post {
     required this.scheduledTime,
   });
 
-  Post copyWith(String? status, String? description) {
+  Post copyWith({String? status, String? description}) {
     return Post(
       id: id,
       userId: userId,
@@ -35,7 +37,7 @@ class Post {
     );
   }
 
-  //convert post to json
+  // Convert Post to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -50,7 +52,7 @@ class Post {
     };
   }
 
-  //convert jason to post
+  // Convert JSON to Post
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'],
@@ -59,9 +61,9 @@ class Post {
       address: json['address'],
       roomNo: json['roomNo'],
       status: json['status'],
-      timestamp: json['timestamp'],
+      timestamp: (json['timestamp'] as Timestamp).toDate(),
       description: json['description'],
-      scheduledTime: json['scheduledTime'],
+      scheduledTime: (json['scheduledTime'] as Timestamp).toDate(),
     );
   }
 }

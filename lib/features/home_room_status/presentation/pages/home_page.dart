@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:huddle/features/home_room_status/presentation/pages/components/room_status_cards.dart';
+import 'package:huddle/features/home_room_status/presentation/pages/components/room_card.dart';
+import 'package:huddle/features/room_status_posts/presentation/cubit/post_cubit.dart';
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
-// import 'package:huddle/features/settings/domain/repos/profile_repo.dart';
 
 import '../../../../common/config/theme/internal_background.dart';
 import '../../../../common/widgets/index.dart';
@@ -47,6 +47,9 @@ class HomeViewState extends State<HomeView> {
   final int todayIndex = DateTime.now().weekday - 1;
   UserProfile? userProfile;
 
+  //Post Cubit
+  late final postCubit = context.read<PostCubit>();
+
   DateTime getDateForIndex(int index) {
     DateTime now = DateTime.now();
     int difference = index - (now.weekday - 1);
@@ -57,6 +60,7 @@ class HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     _loadUserProfile();
+    _fetchAllPosts();
   }
 
   void _loadUserProfile() {
@@ -72,6 +76,15 @@ class HomeViewState extends State<HomeView> {
     });
   }
 
+  void _fetchAllPosts() {
+    postCubit.fetchAllPosts();
+  }
+
+  void deletePost(String postId) {
+    postCubit.deletePost(postId);
+    _fetchAllPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +96,64 @@ class HomeViewState extends State<HomeView> {
             return Stack(
               children: [
                 dateTitle(selectedDate, isToday, context),
-                const RoomStatusCards(),
+                Positioned(
+                  top: 120,
+                  left: 80,
+                  right: -5,
+                  bottom: 75,
+                  child: ClipRect(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: BlocBuilder<PostCubit, PostState>(
+                        builder: (context, state) {
+                          //Loading...
+                          if (state is PostsLoading ||
+                              state is PostsUploading) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          //Loaded.
+                          else if (state is PostsLoaded) {
+                            final allPosts = state.posts;
+
+                            if (allPosts.isEmpty) {
+                              return const Center(
+                                child: Text("A little empty dont you think."),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: allPosts.length,
+                              itemBuilder: (context, index) {
+                                //Get individual post.
+                                final post = allPosts[index];
+
+                                return RoomStatusCard(
+                                  roomNo: post.roomNo,
+                                  status: post.status,
+                                  icon: Icons.abc_outlined,
+                                  time:
+                                      '${post.timestamp.hour.toString()}:${post.timestamp.minute.toString()}',
+                                );
+                              },
+                            );
+                          }
+
+                          //Error.
+                          else if (state is PostsError) {
+                            return Center(
+                              child: Text(state.message),
+                            );
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
                 Positioned(
                   top: 44,
                   left: 14,

@@ -48,7 +48,8 @@ class RoomStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(status),
+                    Text(
+                        capitalizeFirstLetter(status.split('.')[1].toString())),
                     Text(
                       time,
                       style: const TextStyle(color: Colors.grey),
@@ -66,4 +67,11 @@ class RoomStatusCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) {
+    return input;
+  }
+  return input[0].toUpperCase() + input.substring(1);
 }

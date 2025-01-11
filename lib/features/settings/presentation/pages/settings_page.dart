@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:marquee/marquee.dart';
+
 import 'package:huddle/features/settings/presentation/pages/components/about_bottom_sheet.dart';
 import 'package:huddle/features/settings/presentation/pages/components/edit_profile_bottom_sheet.dart';
 
@@ -164,12 +166,50 @@ class ProfileColumn extends StatelessWidget {
           size: 100,
           color: Theme.of(context).colorScheme.primary,
         ),
-        Text(
-          user.name,
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.w300,
-            color: Theme.of(context).colorScheme.secondary,
+        Center(
+          child: SizedBox(
+            height: 50,
+            width: 300,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final textStyle = TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w300,
+                  color: Theme.of(context).colorScheme.secondary,
+                );
+
+                // Measure the text width
+                final textPainter = TextPainter(
+                  text: TextSpan(text: user.name, style: textStyle),
+                  maxLines: 1,
+                  textDirection: TextDirection.ltr,
+                )..layout();
+
+                // Check if text width exceeds the container width
+                if (textPainter.size.width > 280) {
+                  return Marquee(
+                    text: user.name,
+                    style: textStyle,
+                    scrollAxis: Axis.horizontal,
+                    blankSpace: 20.0,
+                    velocity: 50.0,
+                    pauseAfterRound: const Duration(seconds: 3),
+                    startPadding: 10.0,
+                    accelerationDuration: const Duration(seconds: 2),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      user.name,
+                      style: textStyle,
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ),
         const SizedBox(height: 5),
