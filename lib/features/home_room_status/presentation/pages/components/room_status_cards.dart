@@ -24,10 +24,10 @@ class RoomStatusCards extends StatelessWidget {
     ];
 
     return Positioned(
-      top: 140,
+      top: 135,
       left: 80,
-      right: -4,
-      bottom: 80,
+      right: -5,
+      bottom: 75,
       child: ClipRect(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

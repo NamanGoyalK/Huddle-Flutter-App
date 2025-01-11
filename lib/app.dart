@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
 
                 //Unauthenticated --> AuthPage
                 if (authState is Authenticated) {
-                  return const HomePage();
+                  return HomePage();
                 }
                 //Authenticated --> HomePage
                 if (authState is UnAuthenticated) {

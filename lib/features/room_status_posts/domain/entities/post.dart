@@ -45,7 +45,8 @@ class Post {
       'roomNo': roomNo,
       'status': status,
       'timestamp': timestamp,
-      'description': description
+      'description': description,
+      'scheduledTime': scheduledTime,
     };
   }
 

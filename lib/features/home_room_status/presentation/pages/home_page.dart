@@ -1,25 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/features/home_room_status/presentation/pages/components/room_status_cards.dart';
+import 'package:huddle/features/settings/domain/entities/user_profile.dart';
+// import 'package:huddle/features/settings/domain/repos/profile_repo.dart';
 
 import '../../../../common/config/theme/internal_background.dart';
 import '../../../../common/widgets/index.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
 import '../../../community/presentation/pages/community_page.dart';
 import '../../../room_status_posts/presentation/pages/upload_post_bottom_sheet.dart';
+import '../../../settings/data/firebase_profile_repo.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
 import '../cubit/day_cubit.dart';
+import '../../../settings/presentation/cubit/profile_cubit.dart';
 
 part 'components/custom_drawer.dart';
 part 'components/date_title.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  final profileRepo = FirebaseProfileRepo();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => DayCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DayCubit()),
+        BlocProvider(
+          create: (_) => ProfileCubit(profileRepo: profileRepo),
+        ), // Add ProfileCubit here
+      ],
       child: const HomeView(),
     );
   }
@@ -34,11 +45,31 @@ class HomeView extends StatefulWidget {
 
 class HomeViewState extends State<HomeView> {
   final int todayIndex = DateTime.now().weekday - 1;
+  UserProfile? userProfile;
 
   DateTime getDateForIndex(int index) {
     DateTime now = DateTime.now();
     int difference = index - (now.weekday - 1);
     return now.add(Duration(days: difference));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  void _loadUserProfile() {
+    final profileCubit = context.read<ProfileCubit>();
+    final authCubit = context.read<AuthCubit>();
+    profileCubit.fetchUserProfile(authCubit.currentUser!.uid);
+    profileCubit.stream.listen((state) {
+      if (state is ProfileLoaded) {
+        setState(() {
+          userProfile = state.userProfile;
+        });
+      }
+    });
   }
 
   @override
@@ -90,7 +121,18 @@ class HomeViewState extends State<HomeView> {
                   bottom: 35,
                   right: 20,
                   child: GestureDetector(
-                    onTap: () => showUploadBottomSheet(context),
+                    onTap: () {
+                      if (userProfile != null) {
+                        showUploadBottomSheet(context, userProfile!);
+                      } else {
+                        // Handle the case where the user profile is not yet loaded
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile not loaded yet.'),
+                          ),
+                        );
+                      }
+                    },
                     child: const Text('C R E A T E  P O S T'),
                   ),
                 ),
