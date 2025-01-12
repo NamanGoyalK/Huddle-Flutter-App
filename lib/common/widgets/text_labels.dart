@@ -132,3 +132,14 @@ class PageTitleSideWays extends StatelessWidget {
     }
   }
 }
+
+String formatTime(DateTime dateTime) {
+  int hour = dateTime.hour;
+  String period = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12;
+  if (hour == 0) hour = 12;
+
+  String formattedTime =
+      '${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period';
+  return formattedTime;
+}

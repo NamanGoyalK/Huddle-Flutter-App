@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:huddle/common/widgets/index.dart';
 
 class RoomStatusCard extends StatelessWidget {
   final int roomNo;
   final String status;
   final String time;
+  final DateTime postedTime;
+  final String postersName;
+  final String postersBlock;
+  final String postDescription;
 
   const RoomStatusCard({
+    super.key,
     required this.roomNo,
     required this.status,
     required this.time,
-    super.key,
+    required this.postedTime,
+    required this.postersName,
+    required this.postersBlock,
+    required this.postDescription,
   });
 
   @override
@@ -64,10 +73,15 @@ class RoomStatusCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Status: ${capitalizeFirstLetter(status)}'),
-                  // Add more details here
-                  const Text('Additional detail 1'),
-                  const Text('Additional detail 2'),
+                  Text(
+                    'Posted by $postersName at ${formatTime(postedTime)} for $postersBlock block.',
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Description: $postDescription',
+                  ),
                 ],
               ),
             ),

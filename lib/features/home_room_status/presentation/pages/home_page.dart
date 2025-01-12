@@ -136,7 +136,11 @@ class HomeViewState extends State<HomeView> {
                           roomNo: post.roomNo,
                           status: post.status,
                           // icon: Icons.abc_outlined,
-                          time: _formatTime(post.scheduledTime),
+                          time: formatTime(post.scheduledTime),
+                          postedTime: post.timestamp,
+                          postersBlock: post.address,
+                          postersName: post.userName,
+                          postDescription: post.description,
                         );
                       },
                     );
@@ -206,15 +210,4 @@ class HomeViewState extends State<HomeView> {
       ],
     );
   }
-}
-
-String _formatTime(DateTime dateTime) {
-  int hour = dateTime.hour;
-  String period = hour >= 12 ? 'PM' : 'AM';
-  hour = hour % 12;
-  if (hour == 0) hour = 12;
-
-  String formattedTime =
-      '${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period';
-  return formattedTime;
 }
