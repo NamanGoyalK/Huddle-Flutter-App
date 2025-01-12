@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:huddle/features/settings/presentation/pages/my_posts_page.dart';
 import 'package:marquee/marquee.dart';
 
 import 'package:huddle/features/settings/presentation/pages/components/about_bottom_sheet.dart';
@@ -116,12 +117,28 @@ class FullColumn extends StatelessWidget {
         BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, state) {
             if (state is ProfileLoaded) {
-              return OtherSettings(
-                settingsLabel: 'U P D A T E  P R O F I L E',
-                settingsIcon: Icons.edit,
-                onTap: () {
-                  showEditProfileBottomSheet(context, state.userProfile);
-                },
+              return Column(
+                children: [
+                  OtherSettings(
+                    settingsLabel: 'M Y  P O S T S',
+                    settingsIcon: Icons.history,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyPostsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  OtherSettings(
+                    settingsLabel: 'U P D A T E  P R O F I L E',
+                    settingsIcon: Icons.edit,
+                    onTap: () {
+                      showEditProfileBottomSheet(context, state.userProfile);
+                    },
+                  ),
+                ],
               );
             } else {
               return const SizedBox

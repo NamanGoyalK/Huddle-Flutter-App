@@ -8,18 +8,11 @@ import 'package:huddle/features/settings/domain/entities/user_profile.dart';
 import '../../../../common/config/theme/internal_background.dart';
 import '../../../../common/widgets/index.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
-import '../../../community/presentation/pages/community_page.dart';
-import '../../../room_status_posts/presentation/pages/upload_post_bottom_sheet.dart';
 import '../../../settings/data/firebase_profile_repo.dart';
-import '../../../settings/presentation/pages/settings_page.dart';
-import '../cubit/day_cubit.dart';
 import '../../../settings/presentation/cubit/profile_cubit.dart';
 
-part 'components/custom_drawer.dart';
-part 'components/date_title.dart';
-
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class MyPostsPage extends StatelessWidget {
+  MyPostsPage({super.key});
 
   final profileRepo = FirebaseProfileRepo();
   final postRepo = FirebasePostRepo(); // Initialize your PostRepo here.
@@ -28,24 +21,23 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DayCubit()),
         BlocProvider(create: (_) => ProfileCubit(profileRepo: profileRepo)),
         BlocProvider(
             create: (_) => PostCubit(postRepo: postRepo)), // New instance.
       ],
-      child: const HomeView(),
+      child: const MyPostsView(),
     );
   }
 }
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class MyPostsView extends StatefulWidget {
+  const MyPostsView({super.key});
 
   @override
-  HomeViewState createState() => HomeViewState();
+  MyPostsViewState createState() => MyPostsViewState();
 }
 
-class HomeViewState extends State<HomeView> {
+class MyPostsViewState extends State<MyPostsView> {
   final int todayIndex = DateTime.now().weekday - 1;
   UserProfile? userProfile;
 
@@ -78,7 +70,10 @@ class HomeViewState extends State<HomeView> {
     });
   }
 
-  void _fetchAllPosts() => postCubit.fetchAllPosts();
+  void _fetchAllPosts() {
+    final authCubit = context.read<AuthCubit>();
+    postCubit.fetchPostByUserID(authCubit.currentUser!.uid);
+  }
 
   void deletePost(String postId) {
     postCubit.deletePost(postId);
@@ -89,32 +84,56 @@ class HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: InternalBackground(
-        child: BlocBuilder<DayCubit, DayState>(
-          builder: (context, state) {
-            final selectedDate = getDateForIndex(state.selectedIndex);
-            final isToday = state.selectedIndex == todayIndex;
-            return homeMainColumn(selectedDate, isToday, context, state);
-          },
-        ),
+        child: postsColumn(context),
       ),
-      drawerScrimColor: const Color.fromARGB(10, 0, 0, 0),
-      onDrawerChanged: (isOpen) {
-        context.read<DayCubit>().toggleDrawer(isOpen);
-      },
-      drawer: const CustomDrawer(),
     );
   }
 
-  Stack homeMainColumn(DateTime selectedDate, bool isToday,
-      BuildContext context, DayState state) {
+  Stack postsColumn(BuildContext context) {
     return Stack(
       children: [
-        dateTitle(selectedDate, isToday, context),
+        Positioned(
+          top: 40,
+          right: 14,
+          child: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.secondary,
+                Theme.of(context).colorScheme.onPrimary,
+              ],
+            ).createShader(bounds),
+            child: const Text(
+              "This Week",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 50,
+                fontWeight: FontWeight.w200,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 120,
+          right: 14,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2.0),
+            height: 1.0,
+            width: 300,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color.fromARGB(0, 131, 130, 130),
+                  Theme.of(context).colorScheme.secondary,
+                ],
+              ),
+            ),
+          ),
+        ),
         Positioned(
           top: 136,
           left: 80,
           right: -6,
-          bottom: 75,
+          bottom: 0,
           child: ClipRect(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -164,52 +183,16 @@ class HomeViewState extends State<HomeView> {
           top: 44,
           left: 14,
           child: CustomNavButton(
-            icon: Icons.menu,
+            icon: Icons.arrow_back_ios_new_outlined,
             onTap: () {
-              context.read<DayCubit>().toggleDrawer(true);
-              Scaffold.of(context).openDrawer();
+              Navigator.of(context).pop();
             },
-            isRotated: state.isDrawerOpen,
+            isRotated: false,
           ),
         ),
-        PageTitleSideWays(
-          isDrawerOpen: state.isDrawerOpen,
-          pageTitle: 'ROOM STATUS',
-        ),
-        Positioned(
-          bottom: 65,
-          right: 14,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2.0),
-            height: 1.0,
-            width: 300,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color.fromARGB(0, 131, 130, 130),
-                  Theme.of(context).colorScheme.secondary,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 35,
-          right: 20,
-          child: GestureDetector(
-            onTap: () {
-              if (userProfile != null) {
-                showUploadBottomSheet(context, userProfile!);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile not loaded yet.'),
-                  ),
-                );
-              }
-            },
-            child: const Text('C R E A T E  P O S T'),
-          ),
+        const PageTitleSideWays(
+          isDrawerOpen: false,
+          pageTitle: 'MY POSTS',
         ),
       ],
     );
