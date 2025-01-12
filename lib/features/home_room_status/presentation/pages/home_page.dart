@@ -27,9 +27,7 @@ class HomePage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => DayCubit()),
-        BlocProvider(
-          create: (_) => ProfileCubit(profileRepo: profileRepo),
-        ), // Add ProfileCubit here
+        BlocProvider(create: (_) => ProfileCubit(profileRepo: profileRepo)),
       ],
       child: const HomeView(),
     );
@@ -47,20 +45,20 @@ class HomeViewState extends State<HomeView> {
   final int todayIndex = DateTime.now().weekday - 1;
   UserProfile? userProfile;
 
-  //Post Cubit
-  late final postCubit = context.read<PostCubit>();
-
-  DateTime getDateForIndex(int index) {
-    DateTime now = DateTime.now();
-    int difference = index - (now.weekday - 1);
-    return now.add(Duration(days: difference));
-  }
+  late final PostCubit postCubit;
 
   @override
   void initState() {
     super.initState();
+    postCubit = context.read<PostCubit>();
     _loadUserProfile();
     _fetchAllPosts();
+  }
+
+  DateTime getDateForIndex(int index) {
+    final now = DateTime.now();
+    final difference = index - todayIndex;
+    return now.add(Duration(days: difference));
   }
 
   void _loadUserProfile() {
@@ -76,9 +74,7 @@ class HomeViewState extends State<HomeView> {
     });
   }
 
-  void _fetchAllPosts() {
-    postCubit.fetchAllPosts();
-  }
+  void _fetchAllPosts() => postCubit.fetchAllPosts();
 
   void deletePost(String postId) {
     postCubit.deletePost(postId);
@@ -91,123 +87,9 @@ class HomeViewState extends State<HomeView> {
       body: InternalBackground(
         child: BlocBuilder<DayCubit, DayState>(
           builder: (context, state) {
-            DateTime selectedDate = getDateForIndex(state.selectedIndex);
-            bool isToday = state.selectedIndex == todayIndex;
-            return Stack(
-              children: [
-                dateTitle(selectedDate, isToday, context),
-                Positioned(
-                  top: 120,
-                  left: 80,
-                  right: -5,
-                  bottom: 75,
-                  child: ClipRect(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: BlocBuilder<PostCubit, PostState>(
-                        builder: (context, state) {
-                          //Loading...
-                          if (state is PostsLoading ||
-                              state is PostsUploading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          //Loaded.
-                          else if (state is PostsLoaded) {
-                            final allPosts = state.posts;
-
-                            if (allPosts.isEmpty) {
-                              return const Center(
-                                child: Text("A little empty dont you think."),
-                              );
-                            }
-
-                            return ListView.builder(
-                              itemCount: allPosts.length,
-                              itemBuilder: (context, index) {
-                                //Get individual post.
-                                final post = allPosts[index];
-
-                                return RoomStatusCard(
-                                  roomNo: post.roomNo,
-                                  status: post.status,
-                                  icon: Icons.abc_outlined,
-                                  time:
-                                      '${post.timestamp.hour.toString()}:${post.timestamp.minute.toString()}',
-                                );
-                              },
-                            );
-                          }
-
-                          //Error.
-                          else if (state is PostsError) {
-                            return Center(
-                              child: Text(state.message),
-                            );
-                          } else {
-                            return const SizedBox();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 44,
-                  left: 14,
-                  child: CustomNavButton(
-                    icon: Icons.menu,
-                    onTap: () {
-                      context.read<DayCubit>().toggleDrawer(true);
-                      Scaffold.of(context).openDrawer();
-                    },
-                    isRotated: state.isDrawerOpen,
-                  ),
-                ),
-                PageTitleSideWays(
-                  isDrawerOpen: state.isDrawerOpen,
-                  pageTitle: 'ROOM STATUS',
-                ),
-                Positioned(
-                  bottom: 65,
-                  right: 14,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                    height: 1.0,
-                    width: 300,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color.fromARGB(0, 131, 130, 130),
-                          Theme.of(context).colorScheme.secondary,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 35,
-                  right: 20,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (userProfile != null) {
-                        showUploadBottomSheet(context, userProfile!);
-                      } else {
-                        // Handle the case where the user profile is not yet loaded
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Profile not loaded yet.'),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text('C R E A T E  P O S T'),
-                  ),
-                ),
-              ],
-            );
+            final selectedDate = getDateForIndex(state.selectedIndex);
+            final isToday = state.selectedIndex == todayIndex;
+            return homeMainColumn(selectedDate, isToday, context, state);
           },
         ),
       ),
@@ -218,4 +100,121 @@ class HomeViewState extends State<HomeView> {
       drawer: const CustomDrawer(),
     );
   }
+
+  Stack homeMainColumn(DateTime selectedDate, bool isToday,
+      BuildContext context, DayState state) {
+    return Stack(
+      children: [
+        dateTitle(selectedDate, isToday, context),
+        Positioned(
+          top: 136,
+          left: 80,
+          right: -6,
+          bottom: 72,
+          child: ClipRect(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: BlocBuilder<PostCubit, PostState>(
+                builder: (context, state) {
+                  if (state is PostsLoading || state is PostsUploading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is PostsLoaded) {
+                    final allPosts = state.posts;
+                    if (allPosts.isEmpty) {
+                      return const Center(
+                        child: Text("A little empty dont you think."),
+                      );
+                    }
+                    return ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: allPosts.length,
+                      itemBuilder: (context, index) {
+                        final post = allPosts[index];
+                        return RoomStatusCard(
+                          roomNo: post.roomNo,
+                          status: post.status,
+                          // icon: Icons.abc_outlined,
+                          time: _formatTime(post.scheduledTime),
+                        );
+                      },
+                    );
+                  } else if (state is PostsError) {
+                    return Center(
+                      child: Text(state.message),
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 44,
+          left: 14,
+          child: CustomNavButton(
+            icon: Icons.menu,
+            onTap: () {
+              context.read<DayCubit>().toggleDrawer(true);
+              Scaffold.of(context).openDrawer();
+            },
+            isRotated: state.isDrawerOpen,
+          ),
+        ),
+        PageTitleSideWays(
+          isDrawerOpen: state.isDrawerOpen,
+          pageTitle: 'ROOM STATUS',
+        ),
+        Positioned(
+          bottom: 65,
+          right: 14,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2.0),
+            height: 1.0,
+            width: 300,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color.fromARGB(0, 131, 130, 130),
+                  Theme.of(context).colorScheme.secondary,
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 35,
+          right: 20,
+          child: GestureDetector(
+            onTap: () {
+              if (userProfile != null) {
+                showUploadBottomSheet(context, userProfile!);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Profile not loaded yet.'),
+                  ),
+                );
+              }
+            },
+            child: const Text('C R E A T E  P O S T'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _formatTime(DateTime dateTime) {
+  int hour = dateTime.hour;
+  String period = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12;
+  if (hour == 0) hour = 12;
+
+  String formattedTime =
+      '${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period';
+  return formattedTime;
 }

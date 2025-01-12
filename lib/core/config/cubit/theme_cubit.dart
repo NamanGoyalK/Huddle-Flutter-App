@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
@@ -27,7 +29,7 @@ class ThemeCubit extends Cubit<ThemeState> {
   Future<void> _loadSecondaryColor() async {
     final preferences = await SharedPreferences.getInstance();
     final colorValue =
-        preferences.getInt('secondaryColor') ?? Colors.amber.value;
+        preferences.getInt('secondaryColor') ?? Colors.teal.value;
     emit(state.copyWith(secondaryColor: Color(colorValue)));
   }
 }

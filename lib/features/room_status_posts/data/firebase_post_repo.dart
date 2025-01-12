@@ -29,7 +29,7 @@ class FirebasePostRepo implements PostRepo {
     try {
       //Get all the posts from the firestore with the most recent on the top.
       final postsSnapshot =
-          await postCollection.orderBy('timestamp', descending: true).get();
+          await postCollection.orderBy('scheduledTime', descending: true).get();
 
       //Convert each firestore document from json --> list of posts
       final List<Post> allPosts = postsSnapshot.docs

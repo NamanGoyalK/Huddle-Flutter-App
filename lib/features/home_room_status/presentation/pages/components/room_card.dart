@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 class RoomStatusCard extends StatelessWidget {
   final int roomNo;
   final String status;
-  final IconData icon;
   final String time;
 
   const RoomStatusCard({
     required this.roomNo,
     required this.status,
-    required this.icon,
     required this.time,
     super.key,
   });
@@ -21,51 +19,81 @@ class RoomStatusCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
         width: double.infinity,
-        child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: ExpansionTile(
           leading: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                icon,
+                _getIconForStatus(status),
                 color: Theme.of(context).colorScheme.secondary,
               ),
             ],
           ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  'Room ${roomNo.toString()}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+          title: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Room ${roomNo.toString()}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                        capitalizeFirstLetter(status.split('.')[1].toString())),
-                    Text(
-                      time,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(capitalizeFirstLetter(
+                          status.split('.')[1].toString())),
+                      Text(
+                        time,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Status: ${capitalizeFirstLetter(status)}'),
+                  // Add more details here
+                  const Text('Additional detail 1'),
+                  const Text('Additional detail 2'),
+                ],
               ),
-            ],
-          ),
-          trailing: const Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.grey,
-          ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  IconData _getIconForStatus(String status) {
+    switch (status) {
+      case 'RoomStatus.gaming':
+        return Icons.gamepad_outlined;
+      case 'RoomStatus.studying':
+        return Icons.menu_book_outlined;
+      case 'RoomStatus.mute':
+        return Icons.volume_off_outlined;
+      case 'RoomStatus.noisy':
+        return Icons.speaker_outlined;
+      case 'RoomStatus.neutral':
+        return Icons.speaker_notes_outlined;
+      case 'RoomStatus.select':
+        return Icons.error_outline;
+      default:
+        return Icons.help_outline;
+    }
   }
 }
 
