@@ -9,6 +9,8 @@ class RoomStatusCard extends StatelessWidget {
   final String postersName;
   final String postersBlock;
   final String postDescription;
+  final VoidCallback? onDelete;
+  final bool showDeleteButton;
 
   const RoomStatusCard({
     super.key,
@@ -19,6 +21,8 @@ class RoomStatusCard extends StatelessWidget {
     required this.postersName,
     required this.postersBlock,
     required this.postDescription,
+    this.onDelete,
+    this.showDeleteButton = false,
   });
 
   @override
@@ -82,6 +86,22 @@ class RoomStatusCard extends StatelessWidget {
                   Text(
                     'Description: $postDescription',
                   ),
+                  if (showDeleteButton && onDelete != null)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            'D E L E T E  P O S T',
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                        onTap: onDelete,
+                      ),
+                    ),
                 ],
               ),
             ),

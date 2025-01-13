@@ -75,9 +75,48 @@ class MyPostsViewState extends State<MyPostsView> {
     postCubit.fetchPostByUserID(authCubit.currentUser!.uid);
   }
 
-  void deletePost(String postId) {
-    postCubit.deletePost(postId);
-    _fetchAllPosts();
+  void deletePost(BuildContext context, String postId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to delete this post?"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                "Delete",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                postCubit.deletePost(postId);
+                _fetchAllPosts();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -99,7 +138,7 @@ class MyPostsViewState extends State<MyPostsView> {
             shaderCallback: (bounds) => LinearGradient(
               colors: [
                 Theme.of(context).colorScheme.secondary,
-                Theme.of(context).colorScheme.onPrimary,
+                Theme.of(context).colorScheme.onSecondary,
               ],
             ).createShader(bounds),
             child: const Text(
@@ -158,12 +197,14 @@ class MyPostsViewState extends State<MyPostsView> {
                         return RoomStatusCard(
                           roomNo: post.roomNo,
                           status: post.status,
-                          // icon: Icons.abc_outlined,
                           time: formatTime(post.scheduledTime),
                           postedTime: post.timestamp,
                           postersBlock: post.address,
                           postersName: post.userName,
                           postDescription: post.description,
+                          onDelete: () => deletePost(context, post.id),
+                          showDeleteButton:
+                              true, // Only show delete button here
                         );
                       },
                     );
