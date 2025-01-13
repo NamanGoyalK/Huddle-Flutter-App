@@ -7,9 +7,7 @@ part 'post_state.dart';
 class PostCubit extends Cubit<PostState> {
   final PostRepo postRepo;
 
-  PostCubit({
-    required this.postRepo,
-  }) : super(PostsInitial());
+  PostCubit({required this.postRepo}) : super(PostsInitial());
 
   // Create a new post
   Future<void> createPost(Post post) async {
@@ -39,6 +37,20 @@ class PostCubit extends Cubit<PostState> {
       emit(PostsLoaded(userPosts));
     } catch (e) {
       emit(PostsError('Failed to fetch user-specific posts: $e'));
+    }
+  }
+
+  // Fetch posts for a specific day
+  Future<void> fetchPostsForDay(DateTime date) async {
+    try {
+      emit(PostsLoading());
+      final allPosts = await postRepo.fetchAllPosts();
+      final filteredPosts = allPosts.where((post) {
+        return post.scheduledTime.toLocal().weekday == date.weekday;
+      }).toList();
+      emit(PostsLoaded(filteredPosts));
+    } catch (e) {
+      emit(PostsError('Failed to fetch posts for the day: $e'));
     }
   }
 

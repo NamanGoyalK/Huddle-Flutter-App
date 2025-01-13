@@ -57,6 +57,11 @@ class HomeViewState extends State<HomeView> {
     postCubit = context.read<PostCubit>();
     _loadUserProfile();
     _fetchAllPosts();
+
+    context.read<DayCubit>().stream.listen((state) {
+      final selectedDate = getDateForIndex(state.selectedIndex);
+      postCubit.fetchPostsForDay(selectedDate);
+    });
   }
 
   DateTime getDateForIndex(int index) {
@@ -86,7 +91,9 @@ class HomeViewState extends State<HomeView> {
   }
 
   Future<void> _refreshPosts() async {
-    _fetchAllPosts();
+    final selectedDate =
+        getDateForIndex(context.read<DayCubit>().state.selectedIndex);
+    postCubit.fetchPostsForDay(selectedDate);
   }
 
   @override
@@ -133,48 +140,7 @@ class HomeViewState extends State<HomeView> {
                     if (allPosts.isEmpty) {
                       return RefreshIndicator(
                         onRefresh: _refreshPosts,
-                        child: ListView(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0,
-                            vertical: 120,
-                          ),
-                          children: [
-                            SizedBox(
-                              height: 200,
-                              width: 200,
-                              child: Image.asset(
-                                "assets/images/penguin_light.png",
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            const Text(
-                              "Oops, it's a bit empty here!",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w300,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              "Why not create your first post or refresh to find something new?",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              "Did you know you could swipe down to refresh?",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        ),
+                        child: const EmptyPostsPlaceholder(),
                       );
                     }
                     return RefreshIndicator(

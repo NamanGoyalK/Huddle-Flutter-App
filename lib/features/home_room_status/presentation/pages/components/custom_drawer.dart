@@ -116,7 +116,10 @@ class WeekButtonsColumn extends StatelessWidget {
                     isSelected: state.selectedIndex == index,
                     isToday: isToday,
                     onTap: () {
-                      context.read<DayCubit>().selectDay(index);
+                      context.read<DayCubit>().selectDay(
+                            index,
+                            context.read<PostCubit>(),
+                          );
                       context.read<DayCubit>().toggleDrawer(false);
                       Navigator.of(context).pop(); // Ensure drawer closes
                     },

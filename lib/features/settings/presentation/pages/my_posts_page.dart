@@ -147,7 +147,7 @@ class MyPostsViewState extends State<MyPostsView> {
                     final allPosts = state.posts;
                     if (allPosts.isEmpty) {
                       return const Center(
-                        child: Text("A little empty dont you think."),
+                        child: EmptyPostsPlaceholder(),
                       );
                     }
                     return ListView.builder(

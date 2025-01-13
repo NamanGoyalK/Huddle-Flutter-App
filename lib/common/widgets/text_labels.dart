@@ -109,6 +109,10 @@ class PageTitleSideWays extends StatelessWidget {
             quarterTurns: 3,
             child: Row(
               children: [
+                const SizedBox(
+                  height: 12,
+                  width: 12,
+                ),
                 Text(
                   'HUDDLE',
                   style: TextStyle(
@@ -142,4 +146,56 @@ String formatTime(DateTime dateTime) {
   String formattedTime =
       '${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period';
   return formattedTime;
+}
+
+class EmptyPostsPlaceholder extends StatelessWidget {
+  const EmptyPostsPlaceholder({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20.0,
+        vertical: 120,
+      ),
+      children: [
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: Image.asset(
+            "assets/images/penguin_light.png",
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const Text(
+          "Oops, it's a bit empty here!",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w300,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          "Why not create your first post or refresh to find something new?",
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Did you know you could swipe down to refresh?",
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 30),
+      ],
+    );
+  }
 }

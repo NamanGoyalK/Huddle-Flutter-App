@@ -282,7 +282,10 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
                       isEnabled: !isPastDay,
                       onTap: () {
                         if (!isPastDay) {
-                          context.read<DayCubit>().selectDay(index);
+                          context.read<DayCubit>().selectDay(
+                                index,
+                                context.read<PostCubit>(),
+                              );
                         }
                       },
                     ),
