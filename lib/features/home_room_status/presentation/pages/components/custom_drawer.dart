@@ -120,6 +120,7 @@ class WeekButtonsColumn extends StatelessWidget {
                       context.read<DayCubit>().toggleDrawer(false);
                       Navigator.of(context).pop(); // Ensure drawer closes
                     },
+                    isEnabled: true,
                   );
                 },
               );

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../common/widgets/index.dart';
 import '../../../auth/domain/entities/app_user.dart';
@@ -70,12 +73,17 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
   AppUser? currentUser;
   String? errorMessage;
   DateTime selectedTime = DateTime.now();
+  DateTime? lastPostTime;
+
+  Duration remainingTime = Duration.zero; // Add this for countdown
+  Timer? countdownTimer;
 
   @override
   void initState() {
     super.initState();
     descriptionController = TextEditingController();
     _loadCurrentUser();
+    _loadLastPostTime();
   }
 
   Future<void> _loadCurrentUser() async {
@@ -84,6 +92,58 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       currentUser = authCubit.currentUser;
     });
   }
+
+  @override
+  void dispose() {
+    descriptionController.dispose();
+    countdownTimer?.cancel(); // Dispose timer
+    super.dispose();
+  }
+
+  Future<void> _loadLastPostTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastPostTimeString = prefs.getString('lastPostTime');
+    if (lastPostTimeString != null) {
+      setState(() {
+        lastPostTime = DateTime.parse(lastPostTimeString);
+        _startCountdown(); // Start countdown if time exists
+      });
+    }
+  }
+
+  void _startCountdown() {
+    if (lastPostTime == null) return;
+    final now = DateTime.now();
+    final nextPostTime = lastPostTime!.add(const Duration(hours: 1));
+
+    if (nextPostTime.isAfter(now)) {
+      setState(() {
+        remainingTime = nextPostTime.difference(now);
+      });
+
+      countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {
+          remainingTime = nextPostTime.difference(DateTime.now());
+
+          if (remainingTime.isNegative) {
+            timer.cancel();
+            remainingTime = Duration.zero; // Reset timer when allowed
+          }
+        });
+      });
+    }
+  }
+
+  Future<void> _saveLastPostTime(DateTime time) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastPostTime', time.toIso8601String());
+    setState(() {
+      lastPostTime = time;
+      _startCountdown(); // Restart countdown on new post
+    });
+  }
+
+  // ... (Other methods remain unchanged)
 
   void _uploadPost() {
     setState(() {
@@ -102,6 +162,14 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     if (currentUser == null) {
       setState(() {
         errorMessage = 'User information is not available.';
+      });
+      return;
+    }
+
+    if (lastPostTime != null &&
+        DateTime.now().difference(lastPostTime!).inHours < 1) {
+      setState(() {
+        errorMessage = 'You can only create a post once every hour.';
       });
       return;
     }
@@ -134,6 +202,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     );
 
     context.read<PostCubit>().createPost(newPost);
+    _saveLastPostTime(DateTime.now());
 
     Navigator.of(context).pop();
 
@@ -155,34 +224,37 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: BlocConsumer<PostCubit, PostState>(
-            listener: (context, state) {
-              // Handle state changes if needed
-            },
-            builder: (context, state) {
-              if (state is PostsLoading || state is PostsUploading) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildHandleIndicator(),
-                    const SizedBox(height: 16),
-                    _buildHeader('C R E A T E   P O S T'),
-                    const SizedBox(height: 20),
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 20),
-                  ],
-                );
-              } else {
-                return createPostColumn(context);
-              }
-            },
-          )),
+        padding: const EdgeInsets.all(16.0),
+        child: BlocConsumer<PostCubit, PostState>(
+          listener: (context, state) {
+            // Handle state changes if needed
+          },
+          builder: (context, state) {
+            if (state is PostsLoading || state is PostsUploading) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildHandleIndicator(),
+                  const SizedBox(height: 16),
+                  _buildHeader('C R E A T E   P O S T'),
+                  const SizedBox(height: 20),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 20),
+                ],
+              );
+            } else {
+              return createPostColumn(context);
+            }
+          },
+        ),
+      ),
     );
   }
 
   Column createPostColumn(BuildContext context) {
+    bool canCreatePost = remainingTime == Duration.zero;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -198,31 +270,49 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
             return BlocBuilder<DayCubit, DayState>(
               builder: (context, state) {
                 bool isToday = index == todayIndex;
-                return DrawerWeekButton(
-                  day: 'MTWTFSS'[index],
-                  isSelected: state.selectedIndex == index,
-                  isToday: isToday,
-                  onTap: () {
-                    context.read<DayCubit>().selectDay(index);
-                  },
+                bool isPastDay = index < todayIndex;
+                bool isSelected = state.selectedIndex == index;
+
+                return Column(
+                  children: [
+                    DrawerWeekButton(
+                      day: 'MTWTFSS'[index],
+                      isSelected: isSelected,
+                      isToday: isToday,
+                      isEnabled: !isPastDay,
+                      onTap: () {
+                        if (!isPastDay) {
+                          context.read<DayCubit>().selectDay(index);
+                        }
+                      },
+                    ),
+                  ],
                 );
               },
             );
           }),
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 100,
-          width: 350,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.time,
-            initialDateTime: DateTime.now(),
-            onDateTimeChanged: (DateTime value) {
-              setState(() {
-                selectedTime = value; // Update the selected time
-              });
-            },
-          ),
+        BlocBuilder<DayCubit, DayState>(
+          builder: (context, state) {
+            final selectedDayIndex = state.selectedIndex;
+            bool isFutureDay = selectedDayIndex > todayIndex;
+
+            return SizedBox(
+              height: 100,
+              width: 350,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime: DateTime.now(),
+                minimumDate: isFutureDay ? null : DateTime.now(),
+                onDateTimeChanged: (DateTime value) {
+                  setState(() {
+                    selectedTime = value; // Update the selected time
+                  });
+                },
+              ),
+            );
+          },
         ),
         const SizedBox(height: 20),
         _buildDropdownField(
@@ -258,9 +348,24 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
           ),
           const SizedBox(height: 10),
         ],
+        if (!canCreatePost) ...[
+          const Text(
+            'You can create up to one post per hour.',
+            style: TextStyle(color: Colors.red, fontSize: 14),
+          ),
+          const SizedBox(height: 10),
+        ],
         ColoredButton(
-          labelText: 'C R E A T E',
-          onPressed: _uploadPost,
+          labelText: canCreatePost
+              ? 'C R E A T E'
+              : '${remainingTime.inMinutes}m ${remainingTime.inSeconds % 60}s',
+          onPressed: canCreatePost
+              ? _uploadPost
+              : () {
+                  setState(() {
+                    errorMessage = 'Please try later.';
+                  });
+                }, // Disable button if not allowed
         ),
         const SizedBox(height: 20),
       ],

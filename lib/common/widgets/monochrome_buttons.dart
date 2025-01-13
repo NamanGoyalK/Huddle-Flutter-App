@@ -113,6 +113,7 @@ class DrawerWeekButton extends StatelessWidget {
   final String day;
   final bool isSelected;
   final bool isToday;
+  final bool isEnabled; // Add this line
   final VoidCallback onTap;
 
   const DrawerWeekButton({
@@ -120,41 +121,43 @@ class DrawerWeekButton extends StatelessWidget {
     required this.day,
     required this.isSelected,
     required this.isToday,
+    required this.isEnabled, // Add this line
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null, // Disable on-tap if not enabled
       child: Container(
         height: 50,
         width: 50,
         margin: const EdgeInsets.symmetric(vertical: 5),
         decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            borderRadius: const BorderRadius.all(
-              Radius.circular(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(10),
+              ),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ),
             ),
-            side: BorderSide(
-              // color: Theme.of(context).colorScheme.inversePrimary,
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            ),
-          ),
-          color: isSelected
-              ? Theme.of(context).colorScheme.surface
-              // ? Colors.black
-              : Theme.of(context).colorScheme.surfaceBright,
-        ),
+            color: isSelected
+                ? Theme.of(context).colorScheme.surface
+                : Theme.of(context).colorScheme.surfaceBright),
         child: Center(
           child: Text(
             day,
             style: TextStyle(
-              fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-              fontSize: 18,
-              color: isToday ? Theme.of(context).colorScheme.secondary : null,
-            ),
+                fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 18,
+                color: isEnabled
+                    ? (isToday ? Theme.of(context).colorScheme.secondary : null)
+                    : Theme.of(context)
+                        .colorScheme
+                        .error // Change text color if not enabled
+                ),
           ),
         ),
       ),
