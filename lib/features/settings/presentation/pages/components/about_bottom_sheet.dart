@@ -124,98 +124,98 @@ class _AboutContentState extends State<AboutContent> {
             ),
             const SizedBox(height: 20),
             Center(
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      const url = 'https://www.linkedin.com/in/naman-goyal-dev';
-                      final uri = Uri.parse(url);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri);
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    },
-                    child: Text(
-                      'Developed by Naman Goyal.',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () async {
-                          const url =
-                              'https://www.linkedin.com/in/naman-goyal-dev';
-                          final uri = Uri.parse(url);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri);
-                          } else {
-                            throw 'Could not launch $url';
-                          }
-                        },
-                        icon: Icon(FontAwesomeIcons.linkedin),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          const url = 'https://github.com/NamanGoyalK';
-                          final uri = Uri.parse(url);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri);
-                          } else {
-                            throw 'Could not launch $url';
-                          }
-                        },
-                        icon: Icon(FontAwesomeIcons.squareGithub),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          const email = 'namangoyaldev@gmail.com';
-                          await Clipboard.setData(ClipboardData(text: email));
-                          setState(() {
-                            helperText =
-                                'You can contact me at namangoyaldev@gmail.com. The email address has been copied to your clipboard.';
-                          });
-                          _scrollToEnd();
-                        },
-                        icon: Icon(FontAwesomeIcons.squareGooglePlus),
-                      ),
-                    ],
-                  ),
-                  if (helperText.isNotEmpty) // Conditionally show the text
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            helperText,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: Colors.green,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+              child: namansProfile(context),
             ),
             const SizedBox(height: 20),
           ],
         ),
       ),
+    );
+  }
+
+  Column namansProfile(BuildContext context) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () async {
+            const url = 'https://www.linkedin.com/in/naman-goyal-dev';
+            final uri = Uri.parse(url);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri);
+            } else {
+              throw 'Could not launch $url';
+            }
+          },
+          child: Text(
+            'Developed by Naman Goyal.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () async {
+                const url = 'https://www.linkedin.com/in/naman-goyal-dev';
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              icon: Icon(FontAwesomeIcons.linkedin),
+            ),
+            IconButton(
+              onPressed: () async {
+                const url = 'https://github.com/NamanGoyalK';
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              icon: Icon(FontAwesomeIcons.squareGithub),
+            ),
+            IconButton(
+              onPressed: () async {
+                const email = 'namangoyaldev@gmail.com';
+                await Clipboard.setData(ClipboardData(text: email));
+                setState(() {
+                  helperText =
+                      'You can contact me at namangoyaldev@gmail.com. The email address has been copied to your clipboard.';
+                });
+                _scrollToEnd();
+              },
+              icon: Icon(FontAwesomeIcons.squareGooglePlus),
+            ),
+          ],
+        ),
+        if (helperText.isNotEmpty) // Conditionally show the text
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  helperText,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.green,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
