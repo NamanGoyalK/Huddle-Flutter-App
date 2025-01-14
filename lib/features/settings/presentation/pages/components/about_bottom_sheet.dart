@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void showAboutBottomSheet(BuildContext context) {
@@ -15,14 +17,31 @@ void showAboutBottomSheet(BuildContext context) {
   );
 }
 
-class AboutContent extends StatelessWidget {
+class AboutContent extends StatefulWidget {
   const AboutContent({super.key});
+
+  @override
+  _AboutContentState createState() => _AboutContentState();
+}
+
+class _AboutContentState extends State<AboutContent> {
+  String helperText = '';
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToEnd() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +145,70 @@ class AboutContent extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Row(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          const url =
+                              'https://www.linkedin.com/in/naman-goyal-dev';
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                        icon: Icon(FontAwesomeIcons.linkedin),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          const url = 'https://github.com/NamanGoyalK';
+                          final uri = Uri.parse(url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                        icon: Icon(FontAwesomeIcons.squareGithub),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          const email = 'namangoyaldev@gmail.com';
+                          await Clipboard.setData(ClipboardData(text: email));
+                          setState(() {
+                            helperText =
+                                'You can contact me at namangoyaldev@gmail.com. The email address has been copied to your clipboard.';
+                          });
+                          _scrollToEnd();
+                        },
+                        icon: Icon(FontAwesomeIcons.squareGooglePlus),
+                      ),
+                    ],
+                  ),
+                  if (helperText.isNotEmpty) // Conditionally show the text
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            helperText,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Colors.green,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
