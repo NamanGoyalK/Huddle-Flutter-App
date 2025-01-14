@@ -50,17 +50,21 @@ class HomeViewState extends State<HomeView> {
   UserProfile? userProfile;
 
   late final PostCubit postCubit;
+  DateTime? lastRefreshTime; // Track the last refresh time
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    postCubit = context.read<PostCubit>();
+    postCubit = BlocProvider.of<PostCubit>(context);
     _loadUserProfile();
     _fetchAllPosts();
 
     context.read<DayCubit>().stream.listen((state) {
       final selectedDate = getDateForIndex(state.selectedIndex);
-      postCubit.fetchPostsForDay(selectedDate);
+      postCubit.filterPostsForDate(
+          selectedDate); // Filter locally based on selected date
     });
   }
 
@@ -73,7 +77,16 @@ class HomeViewState extends State<HomeView> {
   void _loadUserProfile() {
     final profileCubit = context.read<ProfileCubit>();
     final authCubit = context.read<AuthCubit>();
-    profileCubit.fetchUserProfile(authCubit.currentUser!.uid);
+    final currentUser = authCubit.currentUser;
+    if (currentUser != null) {
+      profileCubit.fetchUserProfile(currentUser.uid);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User not logged in.'),
+        ),
+      );
+    }
     profileCubit.stream.listen((state) {
       if (state is ProfileLoaded) {
         setState(() {
@@ -91,14 +104,38 @@ class HomeViewState extends State<HomeView> {
   }
 
   Future<void> _refreshPosts() async {
-    final selectedDate =
-        getDateForIndex(context.read<DayCubit>().state.selectedIndex);
-    postCubit.fetchPostsForDay(selectedDate);
+    final now = DateTime.now();
+    if (lastRefreshTime == null ||
+        now.difference(lastRefreshTime!).inSeconds >= 30) {
+      setState(() {
+        lastRefreshTime = now;
+      });
+      final selectedDate =
+          getDateForIndex(context.read<DayCubit>().state.selectedIndex);
+      await postCubit.fetchAllPosts();
+      postCubit.filterPostsForDate(selectedDate); // Filter locally on refresh
+    } else {
+      final remainingTime = 30 - now.difference(lastRefreshTime!).inSeconds;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      scaffoldMessenger.hideCurrentSnackBar();
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          content: Text(
+            'Please wait $remainingTime seconds before refreshing again.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: InternalBackground(
         child: BlocBuilder<DayCubit, DayState>(
           builder: (context, state) {
@@ -121,112 +158,128 @@ class HomeViewState extends State<HomeView> {
     return Stack(
       children: [
         dateTitle(selectedDate, isToday, context),
-        Positioned(
-          top: 136,
-          left: 80,
-          right: -6,
-          bottom: 75,
-          child: ClipRect(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: BlocBuilder<PostCubit, PostState>(
-                builder: (context, state) {
-                  if (state is PostsLoading || state is PostsUploading) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (state is PostsLoaded) {
-                    final allPosts = state.posts;
-                    if (allPosts.isEmpty) {
-                      return RefreshIndicator(
-                        onRefresh: _refreshPosts,
-                        child: const EmptyPostsPlaceholder(),
-                      );
-                    }
-                    return RefreshIndicator(
-                      onRefresh: _refreshPosts,
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: allPosts.length,
-                        itemBuilder: (context, index) {
-                          final post = allPosts[index];
-                          return RoomStatusCard(
-                            roomNo: post.roomNo,
-                            status: post.status,
-                            // icon: Icons.abc_outlined,
-                            time: formatTime(post.scheduledTime),
-                            postedTime: post.timestamp,
-                            postersBlock: post.address,
-                            postersName: post.userName,
-                            postDescription: post.description,
-                          );
-                        },
-                      ),
-                    );
-                  } else if (state is PostsError) {
-                    return Center(
-                      child: Text(state.message),
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
-                },
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 44,
-          left: 14,
-          child: CustomNavButton(
-            icon: Icons.menu,
-            onTap: () {
-              context.read<DayCubit>().toggleDrawer(true);
-              Scaffold.of(context).openDrawer();
-            },
-            isRotated: state.isDrawerOpen,
-          ),
-        ),
+        buildPostsList(),
+        buildCustomNavButton(state),
         PageTitleSideWays(
           isDrawerOpen: state.isDrawerOpen,
           pageTitle: 'ROOM STATUS',
         ),
-        Positioned(
-          bottom: 65,
-          right: 14,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2.0),
-            height: 1.0,
-            width: 300,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color.fromARGB(0, 131, 130, 130),
-                  Theme.of(context).colorScheme.secondary,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 35,
-          right: 20,
-          child: GestureDetector(
-            onTap: () {
-              if (userProfile != null) {
-                showUploadBottomSheet(context, userProfile!);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile not loaded yet.'),
+        buildBottomGradient(context),
+        buildCreatePostButton(context),
+      ],
+    );
+  }
+
+  Positioned buildPostsList() {
+    return Positioned(
+      top: 136,
+      left: 80,
+      right: -6,
+      bottom: 75,
+      child: ClipRect(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: BlocBuilder<PostCubit, PostState>(
+            builder: (context, state) {
+              if (state is PostsLoading || state is PostsUploading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is PostsLoaded) {
+                final allPosts = state.posts;
+                if (allPosts.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: _refreshPosts,
+                    child: const EmptyPostsPlaceholder(),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: _refreshPosts,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: allPosts.length,
+                    itemBuilder: (context, index) {
+                      final post = allPosts[index];
+                      return RoomStatusCard(
+                        roomNo: post.roomNo,
+                        status: post.status,
+                        // icon: Icons.abc_outlined,
+                        time: formatTime(post.scheduledTime),
+                        postedTime: post.timestamp,
+                        postersBlock: post.address,
+                        postersName: post.userName,
+                        postDescription: post.description,
+                      );
+                    },
                   ),
                 );
+              } else if (state is PostsError) {
+                return Center(
+                  child: Text(state.message),
+                );
+              } else {
+                return const SizedBox();
               }
             },
-            child: const Text('C R E A T E  P O S T'),
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Positioned buildCustomNavButton(DayState state) {
+    return Positioned(
+      top: 44,
+      left: 14,
+      child: CustomNavButton(
+        icon: Icons.menu,
+        onTap: () {
+          context.read<DayCubit>().toggleDrawer(true);
+          scaffoldKey.currentState?.openDrawer();
+        },
+        isRotated: state.isDrawerOpen,
+      ),
+    );
+  }
+
+  Positioned buildBottomGradient(BuildContext context) {
+    return Positioned(
+      bottom: 65,
+      right: 14,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 2.0),
+        height: 1.0,
+        width: 300,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color.fromARGB(0, 131, 130, 130),
+              Theme.of(context).colorScheme.secondary,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Positioned buildCreatePostButton(BuildContext context) {
+    return Positioned(
+      bottom: 35,
+      right: 20,
+      child: GestureDetector(
+        onTap: () {
+          if (userProfile != null) {
+            showUploadBottomSheet(context, userProfile!);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile not loaded yet.'),
+              ),
+            );
+          }
+        },
+        child: const Text('C R E A T E  P O S T'),
+      ),
     );
   }
 }

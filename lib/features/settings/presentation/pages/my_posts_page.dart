@@ -42,6 +42,9 @@ class MyPostsViewState extends State<MyPostsView> {
   UserProfile? userProfile;
 
   late final PostCubit postCubit;
+  DateTime? lastRefreshTime; // Track the last refresh time
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -119,9 +122,36 @@ class MyPostsViewState extends State<MyPostsView> {
     );
   }
 
+  Future<void> _refreshPosts() async {
+    final now = DateTime.now();
+    if (lastRefreshTime == null ||
+        now.difference(lastRefreshTime!).inSeconds >= 30) {
+      setState(() {
+        lastRefreshTime = now;
+      });
+      _fetchAllPosts();
+    } else {
+      final remainingTime = 30 - now.difference(lastRefreshTime!).inSeconds;
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      scaffoldMessenger.hideCurrentSnackBar(); // Hide the current SnackBar
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          content: Text(
+            'Please wait $remainingTime seconds before refreshing again.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       body: InternalBackground(
         child: postsColumn(context),
       ),
@@ -189,24 +219,27 @@ class MyPostsViewState extends State<MyPostsView> {
                         child: EmptyPostsPlaceholder(),
                       );
                     }
-                    return ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: allPosts.length,
-                      itemBuilder: (context, index) {
-                        final post = allPosts[index];
-                        return RoomStatusCard(
-                          roomNo: post.roomNo,
-                          status: post.status,
-                          time: formatTime(post.scheduledTime),
-                          postedTime: post.timestamp,
-                          postersBlock: post.address,
-                          postersName: post.userName,
-                          postDescription: post.description,
-                          onDelete: () => deletePost(context, post.id),
-                          showDeleteButton:
-                              true, // Only show delete button here
-                        );
-                      },
+                    return RefreshIndicator(
+                      onRefresh: _refreshPosts,
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: allPosts.length,
+                        itemBuilder: (context, index) {
+                          final post = allPosts[index];
+                          return RoomStatusCard(
+                            roomNo: post.roomNo,
+                            status: post.status,
+                            time: formatTime(post.scheduledTime),
+                            postedTime: post.timestamp,
+                            postersBlock: post.address,
+                            postersName: post.userName,
+                            postDescription: post.description,
+                            onDelete: () => deletePost(context, post.id),
+                            showDeleteButton:
+                                true, // Only show delete button here
+                          );
+                        },
+                      ),
                     );
                   } else if (state is PostsError) {
                     return Center(

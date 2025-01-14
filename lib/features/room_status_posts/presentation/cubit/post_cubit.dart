@@ -6,7 +6,7 @@ part 'post_state.dart';
 
 class PostCubit extends Cubit<PostState> {
   final PostRepo postRepo;
-
+  List<Post> allPosts = []; // Store all posts here.
   PostCubit({required this.postRepo}) : super(PostsInitial());
 
   // Create a new post
@@ -22,11 +22,21 @@ class PostCubit extends Cubit<PostState> {
   Future<void> fetchAllPosts() async {
     try {
       emit(PostsLoading());
-      final posts = await postRepo.fetchAllPosts();
-      emit(PostsLoaded(posts));
+      allPosts = await postRepo.fetchAllPosts();
+      emit(PostsLoaded(allPosts));
     } catch (e) {
       emit(PostsError('Failed to fetch posts: $e'));
     }
+  }
+
+  // Filter posts based on selected date
+  void filterPostsForDate(DateTime selectedDate) {
+    final filteredPosts = allPosts.where((post) {
+      return post.scheduledTime.toLocal().day == selectedDate.day &&
+          post.scheduledTime.toLocal().month == selectedDate.month &&
+          post.scheduledTime.toLocal().year == selectedDate.year;
+    }).toList();
+    emit(PostsLoaded(filteredPosts));
   }
 
   // Fetch posts by user ID
@@ -40,19 +50,19 @@ class PostCubit extends Cubit<PostState> {
     }
   }
 
-  // Fetch posts for a specific day
-  Future<void> fetchPostsForDay(DateTime date) async {
-    try {
-      emit(PostsLoading());
-      final allPosts = await postRepo.fetchAllPosts();
-      final filteredPosts = allPosts.where((post) {
-        return post.scheduledTime.toLocal().weekday == date.weekday;
-      }).toList();
-      emit(PostsLoaded(filteredPosts));
-    } catch (e) {
-      emit(PostsError('Failed to fetch posts for the day: $e'));
-    }
-  }
+  // // Fetch posts for a specific day
+  // Future<void> fetchPostsForDay(DateTime date) async {
+  //   try {
+  //     emit(PostsLoading());
+  //     final allPosts = await postRepo.fetchAllPosts();
+  //     final filteredPosts = allPosts.where((post) {
+  //       return post.scheduledTime.toLocal().weekday == date.weekday;
+  //     }).toList();
+  //     emit(PostsLoaded(filteredPosts));
+  //   } catch (e) {
+  //     emit(PostsError('Failed to fetch posts for the day: $e'));
+  //   }
+  // }
 
   // Delete a post
   Future<void> deletePost(String postId) async {

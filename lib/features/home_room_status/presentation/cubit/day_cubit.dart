@@ -11,8 +11,8 @@ class DayCubit extends Cubit<DayState> {
 
   void selectDay(int index, PostCubit postCubit) {
     emit(state.copyWith(selectedIndex: index));
-    postCubit.fetchPostsForDay(
-        DateTime.now().add(Duration(days: index - DateTime.now().weekday + 1)));
+    // postCubit.fetchPostsForDay(
+    //     DateTime.now().add(Duration(days: index - DateTime.now().weekday + 1)));
   }
 
   void toggleDrawer(bool isOpen) => emit(state.copyWith(isDrawerOpen: isOpen));

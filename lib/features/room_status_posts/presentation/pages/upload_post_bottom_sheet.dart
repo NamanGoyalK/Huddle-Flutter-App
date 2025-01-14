@@ -143,7 +143,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     });
   }
 
-  // ... (Other methods remain unchanged)
+  bool isDebugMode = true; // Set this to true for testing, false for production
 
   void _uploadPost() {
     setState(() {
@@ -166,7 +166,8 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       return;
     }
 
-    if (lastPostTime != null &&
+    if (!isDebugMode &&
+        lastPostTime != null &&
         DateTime.now().difference(lastPostTime!).inHours < 1) {
       setState(() {
         errorMessage = 'You can only create a post once every hour.';
@@ -205,19 +206,6 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     _saveLastPostTime(DateTime.now());
 
     Navigator.of(context).pop();
-    final postCubit = context.read<PostCubit>();
-
-    DateTime getDateForIndex(int index) {
-      final now = DateTime.now();
-      final difference = index - todayIndex;
-      return now.add(Duration(days: difference));
-    }
-
-    context.read<DayCubit>().stream.listen((state) {
-      final selectedDate = getDateForIndex(state.selectedIndex);
-      postCubit.fetchPostsForDay(selectedDate);
-    });
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(
