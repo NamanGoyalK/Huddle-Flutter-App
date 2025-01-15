@@ -5,6 +5,7 @@ class UserProfile extends AppUser {
   final int roomNo;
   final String bio;
   final String gender;
+  final DateTime lastEditTime;
 
   UserProfile({
     required super.uid,
@@ -14,6 +15,7 @@ class UserProfile extends AppUser {
     required this.bio,
     required this.gender,
     required this.roomNo,
+    required this.lastEditTime,
   });
 
   UserProfile copyWith({
@@ -24,6 +26,7 @@ class UserProfile extends AppUser {
     String? newBio,
     String? newGender,
     int? newRoomNo,
+    DateTime? newLastEditTime,
   }) {
     return UserProfile(
       uid: uid ?? this.uid,
@@ -33,6 +36,7 @@ class UserProfile extends AppUser {
       bio: newBio ?? bio,
       gender: newGender ?? gender,
       roomNo: newRoomNo ?? roomNo,
+      lastEditTime: newLastEditTime ?? lastEditTime,
     );
   }
 
@@ -46,6 +50,7 @@ class UserProfile extends AppUser {
       'bio': bio,
       'gender': gender,
       'roomNo': roomNo,
+      'lastEditTime': lastEditTime.toIso8601String(),
     };
   }
 
@@ -58,6 +63,8 @@ class UserProfile extends AppUser {
       bio: json['bio'] ?? '',
       gender: json['gender'] ?? '',
       roomNo: json['roomNo'] ?? 0,
+      lastEditTime:
+          DateTime.parse(json['lastEditTime'] ?? '1970-01-01T00:00:00.000Z'),
     );
   }
 }

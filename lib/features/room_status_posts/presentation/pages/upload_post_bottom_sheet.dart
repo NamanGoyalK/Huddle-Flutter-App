@@ -143,7 +143,8 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     });
   }
 
-  bool isDebugMode = true; // Set this to true for testing, false for production
+  bool isDebugMode =
+      false; // Set this to true for testing, false for production
 
   void _uploadPost() {
     setState(() {
@@ -204,6 +205,8 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
 
     context.read<PostCubit>().createPost(newPost);
     _saveLastPostTime(DateTime.now());
+
+    context.read<PostCubit>().fetchAllPosts();
 
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(

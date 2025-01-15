@@ -4,10 +4,11 @@ import 'package:huddle/features/settings/domain/repos/profile_repo.dart';
 
 class FirebaseProfileRepo implements ProfileRepo {
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
   @override
   Future<UserProfile?> fetchUserProfile(String uid) async {
     try {
-      //Get user doc from the firestore
+      // Get user doc from the firestore
       final userDoc =
           await firebaseFirestore.collection('users').doc(uid).get();
 
@@ -22,9 +23,13 @@ class FirebaseProfileRepo implements ProfileRepo {
           bio: userData['bio'] ?? '',
           gender: userData['gender'] ?? '',
           roomNo: userData['roomNo'] ?? 0,
+          lastEditTime: userData['lastEditTime'] != null
+              ? DateTime.parse(userData['lastEditTime'])
+              : DateTime(1970, 1, 1),
         );
       }
     } catch (e) {
+      print('Error fetching user profile: $e');
       return null;
     }
     return null;
@@ -36,16 +41,16 @@ class FirebaseProfileRepo implements ProfileRepo {
       await firebaseFirestore
           .collection('users')
           .doc(updatedProfile.uid)
-          .update(
-        {
-          'address': updatedProfile.address,
-          'bio': updatedProfile.bio,
-          'gender': updatedProfile.gender,
-          'roomNo': updatedProfile.roomNo,
-        },
-      );
+          .update({
+        'address': updatedProfile.address,
+        'bio': updatedProfile.bio,
+        'gender': updatedProfile.gender,
+        'roomNo': updatedProfile.roomNo,
+        'lastEditTime': updatedProfile.lastEditTime.toIso8601String(),
+      });
     } catch (e) {
-      throw Exception(e);
+      print('Error updating profile: $e');
+      throw Exception('Error updating profile');
     }
   }
 }

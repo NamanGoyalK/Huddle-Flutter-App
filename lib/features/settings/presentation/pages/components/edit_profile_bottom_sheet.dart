@@ -48,7 +48,7 @@ void showEditProfileBottomSheet(BuildContext context, UserProfile user) {
   ).then((_) {
     if (context.mounted) {
       // Refresh the profile data in the parent view
-      context.read<ProfileCubit>().fetchUserProfile(user.uid);
+      // context.read<ProfileCubit>().fetchUserProfile(user.uid);
     }
   });
 }
@@ -111,6 +111,14 @@ class EditProfileContentState extends State<EditProfileContent> {
   Widget build(BuildContext context) {
     // Call the custom method that builds the UI.
     return _buildEditPage(context);
+  }
+
+  bool canUpdate() {
+    return DateTime.now().difference(widget.user.lastEditTime).inDays >= 7;
+  }
+
+  int remainingDays() {
+    return 7 - DateTime.now().difference(widget.user.lastEditTime).inDays;
   }
 
   Padding _buildEditPage(BuildContext context) {
@@ -177,30 +185,22 @@ class EditProfileContentState extends State<EditProfileContent> {
               keyboardType: TextInputType.multiline,
             ),
             const SizedBox(height: 15),
+            if (!canUpdate())
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'You can update your profile in ${remainingDays()} day(s)',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: ColoredButton(
                   labelText: 'U P D A T E',
-                  onPressed: () async {
-                    final profileCubit = context.read<ProfileCubit>();
-
-                    await profileCubit.updateProfile(
-                      uid: widget.user.uid,
-                      newBio: bioController.text,
-                      newRoomNo: int.tryParse(roomNoController.text),
-                      newGender: selectedGender != Gender.select
-                          ? _getGenderLabel(selectedGender!)
-                          : null,
-                      newAddress: selectedBlock != Block.select
-                          ? _getBlockLabel(selectedBlock!)
-                          : null,
-                    );
-
-                    if (context.mounted) {
-                      Navigator.pop(context);
-                    }
-                  },
+                  onPressed: canUpdate() ? updatePressed : null,
                 ),
               ),
             ),
@@ -208,6 +208,26 @@ class EditProfileContentState extends State<EditProfileContent> {
         ),
       ),
     );
+  }
+
+  updatePressed() async {
+    final profileCubit = context.read<ProfileCubit>();
+
+    await profileCubit.updateProfile(
+      uid: widget.user.uid,
+      newBio: bioController.text,
+      newRoomNo: int.tryParse(roomNoController.text),
+      newGender: selectedGender != Gender.select
+          ? _getGenderLabel(selectedGender!)
+          : null,
+      newAddress:
+          selectedBlock != Block.select ? _getBlockLabel(selectedBlock!) : null,
+      newLastEditTime: DateTime.now(),
+    );
+
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 }
 

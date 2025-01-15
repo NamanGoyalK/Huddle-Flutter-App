@@ -49,6 +49,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     int? newRoomNo,
     String? newAddress,
     String? newGender,
+    DateTime? newLastEditTime,
   }) async {
     emit(ProfileLoading()); // Trigger loading state
 
@@ -67,6 +68,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         newRoomNo: newRoomNo ?? currentUser.roomNo,
         newAddress: newAddress ?? currentUser.address,
         newGender: newGender ?? currentUser.gender,
+        newLastEditTime: newLastEditTime ?? currentUser.lastEditTime,
       );
 
       // Update in repository
