@@ -1,17 +1,10 @@
-import 'package:email_otp/email_otp.dart';
+import 'package:email_otp_auth/email_otp_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:huddle/common/config/theme/animated_bw_background.dart';
 import 'package:huddle/common/widgets/index.dart';
 import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
-
-void main() {
-  EmailOTP.config(
-    appName: 'Huddle',
-    otpType: OTPType.alphaNumeric,
-    emailTheme: EmailTheme.v4,
-  );
-}
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key, required this.togglePages});
@@ -23,6 +16,7 @@ class CreateAccountPage extends StatefulWidget {
 
 class CreateAccountPageState extends State<CreateAccountPage> {
   bool _passwordVisible = true;
+  bool _isOtpVerified = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -201,18 +195,65 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       return;
     }
 
-    if (await EmailOTP.sendOTP(email: _emailController.text)) {
-      showSnackBar(context, "OTP has been sent", Colors.green);
-    } else {
-      showSnackBar(context, "Failed to send OTP", Colors.red);
+    try {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      var res = await EmailOtpAuth.sendOTP(email: _emailController.text);
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (res["message"] == "Email Send" && context.mounted) {
+        showSnackBar(context, "OTP has been sent", Colors.green);
+      } else {
+        if (context.mounted) {
+          showSnackBar(context, "Invalid E-Mail Address ❌", Colors.red);
+        }
+      }
+    } catch (error) {
+      throw error.toString();
     }
   }
 
-  void _verifyOTP() {
-    if (EmailOTP.getOTP() == _otpController.text) {
-      showSnackBar(context, "OTP verified successfully", Colors.green);
-    } else {
-      showSnackBar(context, "Invalid OTP", Colors.red);
+  void _verifyOTP() async {
+    try {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
+      var res = await EmailOtpAuth.verifyOtp(otp: _otpController.text);
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (res["message"] == "OTP Verified" && context.mounted) {
+        setState(() {
+          _isOtpVerified = true;
+        });
+        showSnackBar(context, "OTP verified ✅", Colors.green);
+      } else if (res["data"] == "Invalid OTP" && context.mounted) {
+        showSnackBar(context, "Invalid OTP ❌", Colors.red);
+      } else if (res["data"] == "OTP Expired" && context.mounted) {
+        showSnackBar(context, "OTP Expired ⚠️", Colors.red);
+      } else {
+        return;
+      }
+    } catch (error) {
+      throw error.toString();
     }
   }
 
@@ -220,6 +261,11 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     final String name = _nameController.text.trim();
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
+
+    if (!_isOtpVerified) {
+      showSnackBar(context, 'Please verify the OTP first', Colors.red);
+      return;
+    }
 
     if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
       context

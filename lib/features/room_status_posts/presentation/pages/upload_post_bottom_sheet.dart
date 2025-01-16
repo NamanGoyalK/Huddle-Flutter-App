@@ -151,6 +151,15 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       errorMessage = null;
     });
 
+    // Check if the user's profile has valid room number and block
+    if (widget.userProfile.roomNo == 0 || widget.userProfile.address.isEmpty) {
+      setState(() {
+        errorMessage =
+            'Your profile is incomplete. Please update your room number and block in the profile settings before creating a post.';
+      });
+      return;
+    }
+
     if (selectedStatus == RoomStatus.select ||
         descriptionController.text.isEmpty) {
       setState(() {
