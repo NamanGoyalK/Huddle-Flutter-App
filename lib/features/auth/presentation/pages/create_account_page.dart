@@ -1,9 +1,17 @@
+import 'package:email_otp/email_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:huddle/common/config/theme/animated_bw_background.dart';
 import 'package:huddle/common/widgets/index.dart';
 import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
+
+void main() {
+  EmailOTP.config(
+    appName: 'Huddle',
+    otpType: OTPType.alphaNumeric,
+    emailTheme: EmailTheme.v4,
+  );
+}
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({super.key, required this.togglePages});
@@ -14,7 +22,7 @@ class CreateAccountPage extends StatefulWidget {
 }
 
 class CreateAccountPageState extends State<CreateAccountPage> {
-  bool passwordVisible = true;
+  bool _passwordVisible = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -64,7 +72,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            DisplayText(displayText: "Welcome !"),
+            DisplayText(displayText: "Welcome!"),
             SubDisplayText(subDisplayText: "Create an account"),
           ],
         ),
@@ -90,7 +98,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       icon: Icons.email_outlined,
       obscureText: false,
       suffix: ButtonInsideTF(
-        onPressed: () {},
+        onPressed: _sendOTP,
         text: "Send OTP",
       ),
     );
@@ -104,7 +112,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       icon: Icons.password_outlined,
       obscureText: false,
       suffix: ButtonInsideTF(
-        onPressed: () {},
+        onPressed: _verifyOTP,
         text: "Verify OTP",
       ),
     );
@@ -116,12 +124,12 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       labelText: "Password",
       hintText: "Enter Password",
       icon: Icons.key_outlined,
-      obscureText: passwordVisible,
+      obscureText: _passwordVisible,
       suffixIcon: IconButton(
-        icon: Icon(passwordVisible ? Icons.visibility : Icons.visibility_off),
+        icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
         onPressed: () {
           setState(() {
-            passwordVisible = !passwordVisible;
+            _passwordVisible = !_passwordVisible;
           });
         },
       ),
@@ -141,7 +149,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
       padding: const EdgeInsets.all(8.0),
       child: TextFromUser(
         controller: controller,
-        keyboardType: TextInputType.emailAddress,
+        keyboardType: TextInputType.text,
         labelText: labelText,
         hintText: hintText,
         obscureText: obscureText,
@@ -154,32 +162,9 @@ class CreateAccountPageState extends State<CreateAccountPage> {
 
   Widget _buildCreateAccountButton() {
     return ColoredButton(
-      onPressed: register,
+      onPressed: _register,
       labelText: "Create Account",
     );
-  }
-
-  void register() {
-    final String name = _nameController.text.trim();
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
-
-    final authCubit = context.read<AuthCubit>();
-
-    if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
-      authCubit.signupWithEmailAndPassword(name, email, password);
-    } else {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Please fill in all the fields',
-            style: TextStyle(color: Colors.red),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.surface,
-        ),
-      );
-    }
   }
 
   Widget _buildLoginWithGoogleButton(String googleLogo) {
@@ -197,7 +182,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Already have an account ?"),
+        const Text("Already have an account?"),
         GestureDetector(
           onTap: widget.togglePages,
           child: const Text(
@@ -207,5 +192,46 @@ class CreateAccountPageState extends State<CreateAccountPage> {
         ),
       ],
     );
+  }
+
+  // Helper methods
+  void _sendOTP() async {
+    if (!_isEmailValid(_emailController.text)) {
+      showSnackBar(context, "Enter a valid email", Colors.red);
+      return;
+    }
+
+    if (await EmailOTP.sendOTP(email: _emailController.text)) {
+      showSnackBar(context, "OTP has been sent", Colors.green);
+    } else {
+      showSnackBar(context, "Failed to send OTP", Colors.red);
+    }
+  }
+
+  void _verifyOTP() {
+    if (EmailOTP.getOTP() == _otpController.text) {
+      showSnackBar(context, "OTP verified successfully", Colors.green);
+    } else {
+      showSnackBar(context, "Invalid OTP", Colors.red);
+    }
+  }
+
+  void _register() {
+    final String name = _nameController.text.trim();
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
+      context
+          .read<AuthCubit>()
+          .signupWithEmailAndPassword(name, email, password);
+    } else {
+      showSnackBar(context, 'Please fill in all the fields', Colors.red);
+    }
+  }
+
+  bool _isEmailValid(String email) {
+    return RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$")
+        .hasMatch(email);
   }
 }

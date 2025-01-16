@@ -45,6 +45,7 @@ dependencies:
   marquee: ^2.3.0
   url_launcher: ^6.0.20
   font_awesome_flutter: ^10.8.0
+  email_otp: ^3.0.2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.9.2

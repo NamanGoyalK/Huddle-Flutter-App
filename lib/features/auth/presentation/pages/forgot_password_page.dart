@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huddle/common/config/theme/animated_bw_background.dart';
 import 'package:huddle/common/widgets/index.dart';
+import '../cubits/auth_cubit.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -12,10 +15,20 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
+  bool _isButtonDisabled = false;
+  Timer? _timer;
+  int _remainingSeconds = 90;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTimerState();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -73,9 +86,86 @@ class ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   Widget _buildSendEmailButton() {
     return ColoredButton(
-      onPressed: () {},
-      labelText: 'Submit Email',
+      onPressed: _isButtonDisabled ? null : submitEmail,
+      labelText: _isButtonDisabled
+          ? 'Please wait $_remainingSeconds s'
+          : 'Submit Email',
     );
+  }
+
+  void submitEmail() {
+    final String email = _emailController.text.trim();
+
+    final authCubit = context.read<AuthCubit>();
+
+    if (email.isNotEmpty) {
+      authCubit.sendForgotPasswordLink(email);
+      setState(() {
+        _isButtonDisabled = true;
+        _remainingSeconds = 90;
+      });
+      FocusScope.of(context).unfocus(); // Hide keyboard
+      _startTimer();
+      _saveTimerState();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Email sent! Please check your inbox and junk folder.',
+            style: TextStyle(color: Colors.green),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Please fill a valid email.',
+            style: TextStyle(color: Colors.red),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+        ),
+      );
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingSeconds > 0) {
+          _remainingSeconds--;
+          _saveTimerState();
+        } else {
+          _isButtonDisabled = false;
+          _timer?.cancel();
+          _clearTimerState();
+        }
+      });
+    });
+  }
+
+  Future<void> _saveTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isButtonDisabled', _isButtonDisabled);
+    await prefs.setInt('remainingSeconds', _remainingSeconds);
+  }
+
+  Future<void> _loadTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isButtonDisabled = prefs.getBool('isButtonDisabled') ?? false;
+      _remainingSeconds = prefs.getInt('remainingSeconds') ?? 90;
+      if (_isButtonDisabled) {
+        _startTimer();
+      }
+    });
+  }
+
+  Future<void> _clearTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isButtonDisabled');
+    await prefs.remove('remainingSeconds');
   }
 
   Widget _buildLoginInsteadButton(BuildContext context) {

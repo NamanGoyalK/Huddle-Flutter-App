@@ -80,4 +80,14 @@ class AuthCubit extends Cubit<AuthState> {
       emit(UnAuthenticated()); // Ensure transition out of loading state
     }
   }
+
+  Future<void> sendForgotPasswordLink(String email) async {
+    try {
+      await authRepo.sendPasswordResetLink(email);
+    } catch (e) {
+      emit(AuthError('An unexpected error occurred: $e'));
+    } finally {
+      emit(UnAuthenticated());
+    }
+  }
 }

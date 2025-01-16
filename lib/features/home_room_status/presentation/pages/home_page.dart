@@ -60,12 +60,6 @@ class HomeViewState extends State<HomeView> {
     postCubit = BlocProvider.of<PostCubit>(context);
     _loadUserProfile();
     _fetchAllPosts();
-
-    context.read<DayCubit>().stream.listen((state) {
-      final selectedDate = getDateForIndex(state.selectedIndex);
-      postCubit.filterPostsForDate(
-          selectedDate); // Filter locally based on selected date
-    });
   }
 
   DateTime getDateForIndex(int index) {
@@ -96,7 +90,14 @@ class HomeViewState extends State<HomeView> {
     });
   }
 
-  void _fetchAllPosts() => postCubit.fetchAllPosts();
+  void _fetchAllPosts() {
+    postCubit.fetchAllPosts();
+    context.read<DayCubit>().stream.listen((state) {
+      final selectedDate = getDateForIndex(state.selectedIndex);
+      postCubit.filterPostsForDate(
+          selectedDate); // Filter locally based on selected date
+    });
+  }
 
   void deletePost(String postId) {
     postCubit.deletePost(postId);

@@ -199,3 +199,21 @@ class EmptyPostsPlaceholder extends StatelessWidget {
     );
   }
 }
+
+void showSnackBar(BuildContext context, String message, Color color) {
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontStyle: FontStyle.normal,
+          fontSize: 14,
+          color: color,
+        ),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+    ),
+  );
+}

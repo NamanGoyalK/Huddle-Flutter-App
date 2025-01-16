@@ -12,6 +12,9 @@ abstract class AuthRepo {
     String email,
     String password,
   );
+  Future<void> sendPasswordResetLink(
+    String email,
+  );
   Future<void> logout();
   Future<AppUser?> getCurrentUser();
 }
