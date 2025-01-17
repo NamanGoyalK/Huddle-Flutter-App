@@ -1,11 +1,8 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../../common/widgets/index.dart';
 import '../../../auth/domain/entities/app_user.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
@@ -27,7 +24,7 @@ void showAddBottomSheet(BuildContext context, UserProfile userProfile) {
 }
 
 class AddFavourBlock extends StatefulWidget {
-  final UserProfile userProfile; // Add this line to accept UserProfile
+  final UserProfile userProfile;
 
   const AddFavourBlock({super.key, required this.userProfile});
 
@@ -41,9 +38,10 @@ class _AddFavourBlockState extends State<AddFavourBlock> {
   String? errorMessage;
   DateTime selectedTime = DateTime.now();
   DateTime? lastFavourTime;
-
   Duration remainingTime = Duration.zero; // Add this for countdown
   Timer? countdownTimer;
+  bool isDebugMode =
+      false; // Set this to true for testing, false for production
 
   @override
   void initState() {
@@ -110,9 +108,6 @@ class _AddFavourBlockState extends State<AddFavourBlock> {
     });
   }
 
-  bool isDebugMode =
-      false; // Set this to true for testing, false for production
-
   void _uploadFavour() {
     setState(() {
       errorMessage = null;
@@ -134,21 +129,22 @@ class _AddFavourBlockState extends State<AddFavourBlock> {
       return;
     }
 
-    if (!isDebugMode &&
-        lastFavourTime != null &&
-        DateTime.now().difference(lastFavourTime!).inHours < 1) {
-      setState(() {
-        errorMessage = 'You can only create a favour once every hour.';
-      });
-      return;
+    if (!isDebugMode) {
+      if (lastFavourTime != null &&
+          DateTime.now().difference(lastFavourTime!).inHours < 1) {
+        setState(() {
+          errorMessage = 'You can only create a favour once every hour.';
+        });
+        return;
+      }
     }
 
     final newFavour = Favour(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       userId: currentUser!.uid,
-      userName: widget.userProfile.name, // Access user name
-      address: widget.userProfile.address, // Access user address
-      roomNo: widget.userProfile.roomNo, // Access user room number
+      userName: widget.userProfile.name,
+      address: widget.userProfile.address,
+      roomNo: widget.userProfile.roomNo,
       timestamp: DateTime.now(),
       description: descriptionController.text,
       isComplete: false,
@@ -156,7 +152,6 @@ class _AddFavourBlockState extends State<AddFavourBlock> {
 
     context.read<FavourCubit>().createFavour(newFavour);
     _saveLastFavourTime(DateTime.now());
-
     context.read<FavourCubit>().fetchAllFavours();
 
     Navigator.of(context).pop();
@@ -244,7 +239,7 @@ class _AddFavourBlockState extends State<AddFavourBlock> {
         ],
         ColoredButton(
           labelText: canCreateFavour
-              ? 'A D D  F A V O U R'
+              ? 'A S K'
               : '${remainingTime.inMinutes}m ${remainingTime.inSeconds % 60}s',
           onPressed: canCreateFavour
               ? _uploadFavour

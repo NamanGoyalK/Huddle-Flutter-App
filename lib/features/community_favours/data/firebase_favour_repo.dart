@@ -35,7 +35,10 @@ class FirebaseFavourRepo implements FavourRepo {
     try {
       // Get all the favours from the firestore with the most recent on the top.
       final favoursSnapshot = await favourCollection
-          .orderBy('scheduledTime', descending: true)
+          .orderBy(
+            'timestamp',
+            descending: false,
+          )
           .get();
 
       // Convert each firestore document from JSON --> List of favours.

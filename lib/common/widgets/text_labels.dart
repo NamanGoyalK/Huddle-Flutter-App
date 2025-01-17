@@ -217,3 +217,55 @@ void showSnackBar(BuildContext context, String message, Color color) {
     ),
   );
 }
+
+class NoFavorsPlaceholder extends StatelessWidget {
+  const NoFavorsPlaceholder({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20.0,
+        vertical: 120,
+      ),
+      children: [
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: Image.asset(
+            "assets/images/penguin_light.png",
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const Text(
+          "Nice! Looks like everybody received help.",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w300,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          "You can ask for a favour or refresh to find something new?",
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "You can swipe down too make sure !",
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 30),
+      ],
+    );
+  }
+}

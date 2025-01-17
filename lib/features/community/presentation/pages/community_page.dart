@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/common/config/theme/internal_background.dart';
 import 'package:huddle/common/widgets/index.dart';
+import 'package:huddle/features/community/presentation/pages/components/favour_card.dart';
 import 'package:huddle/features/community_favours/presentation/pages/add_favour_bottom_sheet.dart';
 
 import '../../../auth/presentation/cubits/auth_cubit.dart';
-import '../../../home_room_status/presentation/cubit/day_cubit.dart';
+import '../../../community_favours/data/firebase_favour_repo.dart';
+import '../../../community_favours/presentation/cubit/favour_cubit.dart';
 import '../../../settings/data/firebase_profile_repo.dart';
 import '../../../settings/domain/entities/user_profile.dart';
 import '../../../settings/presentation/cubit/profile_cubit.dart';
@@ -19,8 +21,9 @@ class CommunityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DayCubit()),
         BlocProvider(create: (_) => ProfileCubit(profileRepo: profileRepo)),
+        BlocProvider(
+            create: (_) => FavourCubit(favourRepo: FirebaseFavourRepo())),
       ],
       child: const CommunityView(),
     );
@@ -35,7 +38,6 @@ class CommunityView extends StatefulWidget {
 }
 
 class CommunityViewState extends State<CommunityView> {
-  final int todayIndex = DateTime.now().weekday - 1;
   UserProfile? userProfile;
 
   DateTime? lastRefreshTime; // Track the last refresh time
@@ -46,12 +48,7 @@ class CommunityViewState extends State<CommunityView> {
   void initState() {
     super.initState();
     _loadUserProfile();
-  }
-
-  DateTime getDateForIndex(int index) {
-    final now = DateTime.now();
-    final difference = index - todayIndex;
-    return now.add(Duration(days: difference));
+    _refreshFavours();
   }
 
   void _loadUserProfile() {
@@ -83,6 +80,7 @@ class CommunityViewState extends State<CommunityView> {
       setState(() {
         lastRefreshTime = now;
       });
+      await context.read<FavourCubit>().fetchAllFavours();
     } else {
       final remainingTime = 30 - now.difference(lastRefreshTime!).inSeconds;
       final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -106,24 +104,16 @@ class CommunityViewState extends State<CommunityView> {
     return Scaffold(
       key: scaffoldKey,
       body: InternalBackground(
-        child: BlocBuilder<DayCubit, DayState>(
-          builder: (context, state) {
-            final selectedDate = getDateForIndex(state.selectedIndex);
-            final isToday = state.selectedIndex == todayIndex;
-            return CommunityPageMainColumn(
-                selectedDate, isToday, context, state);
-          },
-        ),
+        child: CommunityPageMainColumn(context),
       ),
     );
   }
 
-  Stack CommunityPageMainColumn(DateTime selectedDate, bool isToday,
-      BuildContext context, DayState state) {
+  Stack CommunityPageMainColumn(BuildContext context) {
     return Stack(
       children: [
         Positioned(
-          top: 40,
+          top: 35,
           right: 14,
           child: ShaderMask(
             shaderCallback: (bounds) => LinearGradient(
@@ -143,7 +133,7 @@ class CommunityViewState extends State<CommunityView> {
           ),
         ),
         Positioned(
-          top: 120,
+          top: 110,
           right: 14,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -159,19 +149,19 @@ class CommunityViewState extends State<CommunityView> {
             ),
           ),
         ),
-        buildPostsList(),
-        buildCustomNavButton(state),
+        buildFavoursList(),
+        buildCustomNavButton(),
         PageTitleSideWays(
-          isDrawerOpen: state.isDrawerOpen,
-          pageTitle: 'ROOM STATUS',
+          isDrawerOpen: false,
+          pageTitle: 'COMMUNITY',
         ),
         buildBottomGradient(context),
-        buildCreatePostButton(context),
+        buildCreateFavourButton(context),
       ],
     );
   }
 
-  Positioned buildPostsList() {
+  Positioned buildFavoursList() {
     return Positioned(
       top: 136,
       left: 80,
@@ -180,22 +170,115 @@ class CommunityViewState extends State<CommunityView> {
       child: ClipRect(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: BlocBuilder<FavourCubit, FavourState>(
+            builder: (context, state) {
+              if (state is FavoursLoading || state is FavoursAdding) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is FavoursLoaded) {
+                final allFavours = state.favours;
+                if (allFavours.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: _refreshFavours,
+                    child: const NoFavorsPlaceholder(),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: _refreshFavours,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: allFavours.length,
+                    itemBuilder: (context, index) {
+                      final favour = allFavours[index];
+                      return FavourCard(
+                        index: index + 1,
+                        roomNo: favour.roomNo,
+                        postedTime: formatTime(favour.timestamp),
+                        postersBlock: favour.address,
+                        postersName: favour.userName,
+                        postDescription: favour.description,
+                        isUserFavor: userProfile != null &&
+                            favour.userId == userProfile!.uid,
+                        onDelete: () => deletePost(context, favour.id),
+                      );
+                    },
+                  ),
+                );
+              } else if (state is FavoursError) {
+                return Center(
+                  child: Text(state.message),
+                );
+              } else {
+                return RefreshIndicator(
+                  onRefresh: _refreshFavours,
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: const [EmptyPostsPlaceholder()],
+                  ),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
   }
 
-  Positioned buildCustomNavButton(DayState state) {
+  void deletePost(BuildContext context, String postId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to delete this post?"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                "Delete",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                context.read<FavourCubit>().deleteFavour(postId);
+                _refreshFavours();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Positioned buildCustomNavButton() {
     return Positioned(
       top: 44,
       left: 14,
       child: CustomNavButton(
-        icon: Icons.menu,
+        icon: Icons.arrow_back_ios_new_outlined,
         onTap: () {
-          context.read<DayCubit>().toggleDrawer(true);
-          scaffoldKey.currentState?.openDrawer();
+          Navigator.of(context).pop();
         },
-        isRotated: state.isDrawerOpen,
+        isRotated: false,
       ),
     );
   }
@@ -220,7 +303,7 @@ class CommunityViewState extends State<CommunityView> {
     );
   }
 
-  Positioned buildCreatePostButton(BuildContext context) {
+  Positioned buildCreateFavourButton(BuildContext context) {
     return Positioned(
       bottom: 35,
       right: 20,
@@ -229,10 +312,11 @@ class CommunityViewState extends State<CommunityView> {
           if (userProfile != null) {
             showAddBottomSheet(context, userProfile!);
           } else {
-            showSnackBar(
-              context,
-              'Profile not loaded yet.',
-              Colors.red,
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile not loaded yet.'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
