@@ -12,6 +12,7 @@ abstract class AuthRepo {
     String email,
     String password,
   );
+  Future<AppUser?> signInWithGoogle();
   Future<void> sendPasswordResetLink(
     String email,
   );

@@ -184,7 +184,7 @@ class SignInPageState extends State<SignInPage> {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: ColoredButton(
-        onPressed: () {},
+        onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
         labelText: " Login with Google",
         image: AssetImage(googleLogo),
       ),

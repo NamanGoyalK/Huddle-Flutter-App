@@ -165,7 +165,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: ColoredButton(
-        onPressed: () {},
+        onPressed: () => context.read<AuthCubit>().signInWithGoogle(),
         labelText: "  Login with Google",
         image: AssetImage(googleLogo),
       ),

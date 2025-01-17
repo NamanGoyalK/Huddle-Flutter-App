@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:huddle/features/auth/domain/entities/app_user.dart';
 import 'package:huddle/features/auth/domain/repos/auth_repo.dart';
 
@@ -165,6 +166,62 @@ class FirebaseAuthRepo implements AuthRepo {
     } catch (e) {
       _logError('Error sending email', e);
       throw Exception('Failed to send email: ${e.toString()}');
+    }
+  }
+
+  @override
+  @override
+  Future<AppUser?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      UserCredential userCredential =
+          await firebaseAuth.signInWithCredential(credential);
+
+      // Extract user data
+      User? firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
+        throw Exception('Google sign-in failed');
+      }
+
+      // Check if user already exists in Firestore
+      DocumentSnapshot userDoc = await firebaseFirestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        // Register the new user in Firestore
+        AppUser user = AppUser(
+          uid: firebaseUser.uid,
+          email: firebaseUser.email!,
+          name: firebaseUser.displayName ?? 'User',
+        );
+
+        await firebaseFirestore
+            .collection('users')
+            .doc(firebaseUser.uid)
+            .set(user.toJson());
+      }
+
+      // Return the user
+      return AppUser(
+        uid: firebaseUser.uid,
+        email: firebaseUser.email!,
+        name: firebaseUser.displayName ?? 'User',
+      );
+    } catch (e) {
+      _logError('Error signing in with Google: ', e);
+      throw Exception(
+          'Error signing in with Google or canceled by user. You can try using email instead if the issue persists.');
     }
   }
 }
