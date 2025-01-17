@@ -97,6 +97,8 @@ class HomeViewState extends State<HomeView> {
       postCubit.filterPostsForDate(
           selectedDate); // Filter locally based on selected date
     });
+
+    postCubit.filterPostsForAddress(userProfile?.address ?? '');
   }
 
   void deletePost(String postId) {

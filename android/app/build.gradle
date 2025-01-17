@@ -8,6 +8,15 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// Add this after the plugins block
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('../android/keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    println "keystore.properties file not found!"
+}
+
 android {
     namespace = "com.example.huddle"
     compileSdk = flutter.compileSdkVersion

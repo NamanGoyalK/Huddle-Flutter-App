@@ -39,6 +39,14 @@ class PostCubit extends Cubit<PostState> {
     emit(PostsLoaded(filteredPosts));
   }
 
+  // Filter posts based on address
+  void filterPostsForAddress(String address) {
+    final filteredPosts = allPosts.where((post) {
+      return post.address.contains(address);
+    }).toList();
+    emit(PostsLoaded(filteredPosts));
+  }
+
   // Fetch posts by user ID
   Future<void> fetchPostByUserID(String userId) async {
     try {

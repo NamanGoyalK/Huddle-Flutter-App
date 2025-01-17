@@ -355,10 +355,14 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
         ),
         const SizedBox(height: 15),
         if (errorMessage != null) ...[
-          Text(
-            errorMessage!,
-            style: const TextStyle(
-              color: Colors.red,
+          SizedBox(
+            width: 350,
+            child: Text(
+              errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.red,
+              ),
             ),
           ),
           const SizedBox(height: 10),

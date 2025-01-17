@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/core/config/cubit/theme_cubit.dart';
 import 'package:huddle/features/auth/data/firebase_auth_repo.dart';
 import 'package:huddle/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:huddle/features/community_favours/data/firebase_favour_repo.dart';
+import 'package:huddle/features/community_favours/presentation/cubit/favour_cubit.dart';
 import 'package:huddle/features/room_status_posts/data/firebase_post_repo.dart';
 import 'package:huddle/features/room_status_posts/presentation/cubit/post_cubit.dart';
 import 'package:huddle/features/settings/data/firebase_profile_repo.dart';
@@ -27,6 +29,9 @@ class MyApp extends StatelessWidget {
 
   //post repo
   final postRepo = FirebasePostRepo();
+
+  //favour repo
+  final favourRepo = FirebaseFavourRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +64,11 @@ class MyApp extends StatelessWidget {
         //Day Cubit
         BlocProvider<DayCubit>(
           create: (context) => DayCubit(),
+        ),
+
+        //Favour Cubit
+        BlocProvider(
+          create: (context) => FavourCubit(favourRepo: favourRepo),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
