@@ -196,7 +196,9 @@ class EmptyPostsPlaceholder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 30),
-        const NativeAdCard(), // Add Native Ad Card
+        const BannerAdWidget(), // Add Native Ad Card
+        const BannerAdWidget(),
+        const BannerAdWidget(),
       ],
     );
   }
@@ -267,7 +269,9 @@ class NoFavorsPlaceholder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 30),
-        const NativeAdCard(), // Add Native Ad Card
+        const BannerAdWidget(), // Add Native Ad Card
+        const BannerAdWidget(),
+        const BannerAdWidget(),
       ],
     );
   }
