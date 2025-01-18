@@ -21,17 +21,17 @@ class AboutContent extends StatefulWidget {
   const AboutContent({super.key});
 
   @override
-  _AboutContentState createState() => _AboutContentState();
+  AboutContentState createState() => AboutContentState();
 }
 
-class _AboutContentState extends State<AboutContent> {
+class AboutContentState extends State<AboutContent> {
   String helperText = '';
   final ScrollController _scrollController = ScrollController();
 
   void _scrollToEnd() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
   }
@@ -147,12 +147,13 @@ class _AboutContentState extends State<AboutContent> {
             }
           },
           child: Text(
-            'Developed by Naman Goyal.',
+            'Idea and Developed by Naman Goyal.',
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontWeight: FontWeight.w800,
-              fontSize: 16,
+              fontSize: 18,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
         Row(
@@ -169,7 +170,7 @@ class _AboutContentState extends State<AboutContent> {
                   throw 'Could not launch $url';
                 }
               },
-              icon: Icon(FontAwesomeIcons.linkedin),
+              icon: const Icon(FontAwesomeIcons.linkedin),
             ),
             IconButton(
               onPressed: () async {
@@ -181,19 +182,19 @@ class _AboutContentState extends State<AboutContent> {
                   throw 'Could not launch $url';
                 }
               },
-              icon: Icon(FontAwesomeIcons.squareGithub),
+              icon: const Icon(FontAwesomeIcons.squareGithub),
             ),
             IconButton(
               onPressed: () async {
                 const email = 'namangoyaldev@gmail.com';
-                await Clipboard.setData(ClipboardData(text: email));
+                await Clipboard.setData(const ClipboardData(text: email));
                 setState(() {
                   helperText =
                       'You can contact me at namangoyaldev@gmail.com. The email address has been copied to your clipboard.';
                 });
                 _scrollToEnd();
               },
-              icon: Icon(FontAwesomeIcons.squareGooglePlus),
+              icon: const Icon(FontAwesomeIcons.squareGooglePlus),
             ),
           ],
         ),
@@ -215,6 +216,41 @@ class _AboutContentState extends State<AboutContent> {
               ],
             ),
           ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Idea co-conceptualized by\n Shiven Shanmugananthan.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                const url =
+                    'https://www.linkedin.com/in/shiven-shanmugananthan-dev';
+                final uri = Uri.parse(url);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              icon: Icon(
+                FontAwesomeIcons.linkedin,
+                size: 42,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

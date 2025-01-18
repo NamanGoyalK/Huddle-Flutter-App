@@ -82,7 +82,7 @@ class FavourCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Posted at ${postedTime} in $postersBlock block.',
+                    'Posted at $postedTime in $postersBlock block.',
                   ),
                   const SizedBox(
                     height: 10,
@@ -94,16 +94,16 @@ class FavourCard extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: const Text(
+                        onTap: onDelete,
+                        child: const Padding(
+                          padding: EdgeInsets.only(top: 16.0),
+                          child: Text(
                             'F A V O U R  C O M P L E T E',
                             style: TextStyle(
                               color: Colors.green,
                             ),
                           ),
                         ),
-                        onTap: onDelete,
                       ),
                     ),
                 ],

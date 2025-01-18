@@ -6,6 +6,7 @@ import 'package:huddle/features/room_status_posts/presentation/cubit/post_cubit.
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
 
 import '../../../../common/config/theme/internal_background.dart';
+import '../../../../common/widgets/ad_mob_ads.dart';
 import '../../../../common/widgets/index.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
 import '../../../settings/data/firebase_profile_repo.dart';
@@ -153,7 +154,15 @@ class MyPostsViewState extends State<MyPostsView> {
     return Scaffold(
       key: scaffoldKey,
       body: InternalBackground(
-        child: postsColumn(context),
+        child: Column(
+          children: [
+            Expanded(
+              child: postsColumn(context),
+            ),
+            // Add BannerAdWidget here at the bottom
+            const BannerAdWidget(),
+          ],
+        ),
       ),
     );
   }
@@ -223,8 +232,15 @@ class MyPostsViewState extends State<MyPostsView> {
                       onRefresh: _refreshPosts,
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
-                        itemCount: allPosts.length,
+                        itemCount: allPosts.length + 1, // Add 1 for the ad
                         itemBuilder: (context, index) {
+                          if (index == allPosts.length) {
+                            // Show banner ad as the last item
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.0),
+                              child: BannerAdWidget(),
+                            );
+                          }
                           final post = allPosts[index];
                           return RoomStatusCard(
                             roomNo: post.roomNo,
@@ -235,8 +251,7 @@ class MyPostsViewState extends State<MyPostsView> {
                             postersName: post.userName,
                             postDescription: post.description,
                             onDelete: () => deletePost(context, post.id),
-                            showDeleteButton:
-                                true, // Only show delete button here
+                            showDeleteButton: true,
                           );
                         },
                       ),

@@ -6,6 +6,7 @@ import 'package:huddle/features/room_status_posts/presentation/cubit/post_cubit.
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
 
 import '../../../../common/config/theme/internal_background.dart';
+import '../../../../common/widgets/ad_mob_ads.dart';
 import '../../../../common/widgets/index.dart';
 import '../../../auth/presentation/cubits/auth_cubit.dart';
 import '../../../community/presentation/pages/community_page.dart';
@@ -200,19 +201,27 @@ class HomeViewState extends State<HomeView> {
                   onRefresh: _refreshPosts,
                   child: ListView.builder(
                     padding: EdgeInsets.zero,
-                    itemCount: allPosts.length,
+                    itemCount: allPosts.length +
+                        (allPosts.length ~/ 4) +
+                        1, // Additional slots for ads
                     itemBuilder: (context, index) {
-                      final post = allPosts[index];
-                      return RoomStatusCard(
-                        roomNo: post.roomNo,
-                        status: post.status,
-                        // icon: Icons.abc_outlined,
-                        time: formatTime(post.scheduledTime),
-                        postedTime: post.timestamp,
-                        postersBlock: post.address,
-                        postersName: post.userName,
-                        postDescription: post.description,
-                      );
+                      if (index % 5 == 4 ||
+                          index == allPosts.length + (allPosts.length ~/ 4)) {
+                        return const NativeAdCard(); // Show an ad every 4 posts and after the last post
+                      } else {
+                        final postIndex = index - (index ~/ 5);
+                        final post = allPosts[postIndex];
+                        return RoomStatusCard(
+                          roomNo: post.roomNo,
+                          status: post.status,
+                          // icon: Icons.abc_outlined,
+                          time: formatTime(post.scheduledTime),
+                          postedTime: post.timestamp,
+                          postersBlock: post.address,
+                          postersName: post.userName,
+                          postDescription: post.description,
+                        );
+                      }
                     },
                   ),
                 );

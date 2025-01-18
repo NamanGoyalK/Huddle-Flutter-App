@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:huddle/common/widgets/ad_mob_ads.dart';
 
 class DisplayText extends StatelessWidget {
   final String displayText;
@@ -195,6 +196,7 @@ class EmptyPostsPlaceholder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 30),
+        const NativeAdCard(), // Add Native Ad Card
       ],
     );
   }
@@ -265,6 +267,7 @@ class NoFavorsPlaceholder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 30),
+        const NativeAdCard(), // Add Native Ad Card
       ],
     );
   }

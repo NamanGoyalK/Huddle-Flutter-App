@@ -191,7 +191,7 @@ class EditProfileContentState extends State<EditProfileContent> {
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text(
                     'You can update your profile in ${remainingDays()} day(s)',
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               ),
@@ -225,7 +225,7 @@ class EditProfileContentState extends State<EditProfileContent> {
       newLastEditTime: DateTime.now(),
     );
 
-    if (context.mounted) {
+    if (mounted) {
       Navigator.pop(context);
     }
   }

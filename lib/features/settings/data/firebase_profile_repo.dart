@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
 import 'package:huddle/features/settings/domain/repos/profile_repo.dart';
 
@@ -29,7 +30,9 @@ class FirebaseProfileRepo implements ProfileRepo {
         );
       }
     } catch (e) {
-      print('Error fetching user profile: $e');
+      if (kDebugMode) {
+        print('Error fetching user profile: $e');
+      }
       return null;
     }
     return null;
@@ -49,7 +52,9 @@ class FirebaseProfileRepo implements ProfileRepo {
         'lastEditTime': updatedProfile.lastEditTime.toIso8601String(),
       });
     } catch (e) {
-      print('Error updating profile: $e');
+      if (kDebugMode) {
+        print('Error updating profile: $e');
+      }
       throw Exception('Error updating profile');
     }
   }

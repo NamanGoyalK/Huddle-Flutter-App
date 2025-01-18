@@ -90,8 +90,9 @@ class RoomStatusCard extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
+                        onTap: onDelete,
+                        child: const Padding(
+                          padding: EdgeInsets.only(top: 16.0),
                           child: Text(
                             'D E L E T E  P O S T',
                             style: TextStyle(
@@ -99,7 +100,6 @@ class RoomStatusCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        onTap: onDelete,
                       ),
                     ),
                 ],

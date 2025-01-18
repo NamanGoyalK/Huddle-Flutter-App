@@ -104,12 +104,12 @@ class CommunityViewState extends State<CommunityView> {
     return Scaffold(
       key: scaffoldKey,
       body: InternalBackground(
-        child: CommunityPageMainColumn(context),
+        child: communityPageMainColumn(context),
       ),
     );
   }
 
-  Stack CommunityPageMainColumn(BuildContext context) {
+  Stack communityPageMainColumn(BuildContext context) {
     return Stack(
       children: [
         Positioned(
@@ -151,7 +151,7 @@ class CommunityViewState extends State<CommunityView> {
         ),
         buildFavoursList(),
         buildCustomNavButton(),
-        PageTitleSideWays(
+        const PageTitleSideWays(
           isDrawerOpen: false,
           pageTitle: 'COMMUNITY',
         ),
