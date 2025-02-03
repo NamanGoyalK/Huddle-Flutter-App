@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:huddle/features/settings/domain/entities/user_profile.dart';
@@ -90,6 +91,9 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
     final authCubit = context.read<AuthCubit>();
     setState(() {
       currentUser = authCubit.currentUser;
+      if (kDebugMode) {
+        print('Current User: $currentUser');
+      }
     });
   }
 
@@ -153,6 +157,10 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
 
     // Check if the user's profile has valid room number and block
     if (widget.userProfile.roomNo == 0 || widget.userProfile.address.isEmpty) {
+      if (kDebugMode) {
+        print(
+            'User Profile - Room No: ${widget.userProfile.roomNo}, Address: ${widget.userProfile.address}');
+      }
       setState(() {
         errorMessage =
             'Your profile is incomplete. Please update your room number and block in the profile settings before creating a post.';

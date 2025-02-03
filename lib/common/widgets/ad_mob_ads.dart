@@ -55,11 +55,19 @@ class BannerAdWidgetState extends State<BannerAdWidget> {
                 child: AdWidget(ad: _bannerAd),
               )
             : _isAdFailed
-                ? const Text('Advertisement')
-                : const SizedBox(
-                    height: 1,
-                    width: 250,
-                    child: LinearProgressIndicator(),
+                ? SizedBox(
+                    height: 0.1,
+                    width: 20,
+                    child: LinearProgressIndicator(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  )
+                : SizedBox(
+                    height: 0.3,
+                    width: 50,
+                    child: LinearProgressIndicator(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   ),
       ],
     );

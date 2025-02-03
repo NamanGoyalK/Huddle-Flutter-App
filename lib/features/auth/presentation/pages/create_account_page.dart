@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:email_otp_auth/email_otp_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -207,21 +208,38 @@ class CreateAccountPageState extends State<CreateAccountPage> {
         },
       );
 
-      var res = await EmailOtpAuth.sendOTP(email: _emailController.text);
+      if (kDebugMode) {
+        print("Attempting to send OTP...");
+      }
+      var res = await EmailOtpAuth.sendOTP(email: _emailController.text)
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        return {"message": "Timeout"};
+      });
 
       if (context.mounted) {
         Navigator.of(context).pop();
       }
 
+      if (kDebugMode) {
+        print("Response: $res");
+      }
+
       if (res["message"] == "Email Send" && context.mounted) {
         showSnackBar(context, "OTP has been sent", Colors.green);
+      } else if (res["message"] == "Timeout" && context.mounted) {
+        showSnackBar(
+            context, "Request timed out. Please try again.", Colors.red);
       } else {
-        if (context.mounted) {
-          showSnackBar(context, "Invalid E-Mail Address ❌", Colors.red);
-        }
+        showSnackBar(context, "Invalid E-Mail Address ❌", Colors.red);
       }
     } catch (error) {
-      throw error.toString();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+      if (kDebugMode) {
+        print("Error: $error");
+      }
+      showSnackBar(context, "Something went wrong", Colors.red);
     }
   }
 

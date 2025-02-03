@@ -1,36 +1,37 @@
 plugins {
-    id "com.android.application"
+    id 'com.android.application'
     id 'com.google.gms.google-services'
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
+    id 'org.jetbrains.kotlin.android'
+    id 'dev.flutter.flutter-gradle-plugin'
 }
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('../android/keystore.properties')
+def keystorePropertiesFile = rootProject.file('keystore.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:33.8.0')
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+}
+
 android {
-    namespace = "com.namangoyaldev.huddle"
+    namespace = 'com.namangoyaldev.huddle'
     compileSdk = 34
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-    }
 
     defaultConfig {
-        minSdkVersion 23
-        applicationId = "com.namangoyaldev.huddle"
-        targetSdk = flutter.targetSdkVersion
-        versionCode = 2 // Incremented version code
-        versionName = flutter.versionName
+        applicationId = 'com.namangoyaldev.huddle'
+        minSdk = 23
+        targetSdk = 34
+        versionCode = 6
+        versionName = '1.0.1'
     }
 
     signingConfigs {
@@ -44,20 +45,29 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             ndk {
                 debugSymbolLevel 'FULL'
             }
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
 }
 
-dependencies {
-    implementation 'com.google.android.gms:play-services-ads:23.6.0'
-    implementation 'com.google.android.material:material:1.13.0-alpha02'
-}
 
-flutter {
-    source = "../.."
-}

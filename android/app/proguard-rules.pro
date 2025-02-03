@@ -10,3 +10,5 @@
 -keepattributes *Annotation*
 
 # Add rules to keep other necessary classes and methods as needed
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.firebase.** { *; }
