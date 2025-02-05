@@ -213,6 +213,21 @@ class EditProfileContentState extends State<EditProfileContent> {
   updatePressed() async {
     final profileCubit = context.read<ProfileCubit>();
 
+    // Check if room number is zero and block is selected
+    if (int.tryParse(roomNoController.text) == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Room number cannot be zero.')),
+      );
+      return;
+    }
+
+    if (selectedBlock == Block.select) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a block.')),
+      );
+      return;
+    }
+
     await profileCubit.updateProfile(
       uid: widget.user.uid,
       newBio: bioController.text,
@@ -229,92 +244,92 @@ class EditProfileContentState extends State<EditProfileContent> {
       Navigator.pop(context);
     }
   }
-}
 
-Widget _buildHandleIndicator() {
-  return Center(
-    child: Container(
-      width: 40,
-      height: 5,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-  );
-}
-
-Widget _buildHeader(BuildContext context, String title) {
-  return Center(
-    child: Text(
-      title,
-      style: Theme.of(context).textTheme.titleLarge,
-    ),
-  );
-}
-
-Widget _buildDropdownField<T>({
-  required BuildContext context,
-  required String label,
-  required IconData icon,
-  required T? value,
-  required List<T> items,
-  required DropdownMenuItem<T> Function(T value) itemBuilder,
-  required ValueChanged<T?> onChanged,
-}) {
-  return Center(
-    child: SizedBox(
-      width: 350,
-      child: DropdownButtonFormField<T>(
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon),
-          labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          fillColor: Theme.of(context).colorScheme.surface,
-          filled: true,
+  Widget _buildHandleIndicator() {
+    return Center(
+      child: Container(
+        width: 40,
+        height: 5,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(10),
         ),
-        value: value,
-        items: items.map(itemBuilder).toList(),
-        onChanged: onChanged,
       ),
-    ),
-  );
-}
-
-Widget _buildTextField({
-  required BuildContext context,
-  required TextEditingController controller,
-  required String label,
-  required String hint,
-  required IconData icon,
-  required TextInputType keyboardType,
-}) {
-  return Center(
-    child: TextFromUser(
-      controller: controller,
-      labelText: label,
-      hintText: hint,
-      icon: icon,
-      keyboardType: keyboardType,
-      obscureText: false,
-    ),
-  );
-}
-
-String _getGenderLabel(Gender gender) {
-  switch (gender) {
-    case Gender.male:
-      return 'Male';
-    case Gender.female:
-      return 'Female';
-    case Gender.select:
-      // default:
-      return 'Select Gender';
+    );
   }
-}
 
-String _getBlockLabel(Block block) {
-  return block == Block.select ? 'Select Block' : block.name;
+  Widget _buildHeader(BuildContext context, String title) {
+    return Center(
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+    );
+  }
+
+  Widget _buildDropdownField<T>({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required T? value,
+    required List<T> items,
+    required DropdownMenuItem<T> Function(T value) itemBuilder,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Center(
+      child: SizedBox(
+        width: 350,
+        child: DropdownButtonFormField<T>(
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon),
+            labelText: label,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            fillColor: Theme.of(context).colorScheme.surface,
+            filled: true,
+          ),
+          value: value,
+          items: items.map(itemBuilder).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required TextInputType keyboardType,
+  }) {
+    return Center(
+      child: TextFromUser(
+        controller: controller,
+        labelText: label,
+        hintText: hint,
+        icon: icon,
+        keyboardType: keyboardType,
+        obscureText: false,
+      ),
+    );
+  }
+
+  String _getGenderLabel(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.select:
+        // default:
+        return 'Select Gender';
+    }
+  }
+
+  String _getBlockLabel(Block block) {
+    return block == Block.select ? 'Select Block' : block.name;
+  }
 }

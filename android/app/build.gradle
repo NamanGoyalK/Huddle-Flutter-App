@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
-    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.android' 
     id 'dev.flutter.flutter-gradle-plugin'
 }
 
@@ -30,8 +30,8 @@ android {
         applicationId = 'com.namangoyaldev.huddle'
         minSdk = 23
         targetSdk = 34
-        versionCode = 6
-        versionName = '1.0.1'
+        versionCode = 7
+        versionName = '1.0.0'
     }
 
     signingConfigs {
