@@ -230,12 +230,58 @@ class ProfileColumn extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
-          user.email,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
+        Center(
+          child: SizedBox(
+            height: 50,
+            width: 300,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final textStyle = TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w300,
+                  color: Theme.of(context).colorScheme.secondary,
+                );
+
+                // Measure the text width
+                final textPainter = TextPainter(
+                  text: TextSpan(text: user.name, style: textStyle),
+                  maxLines: 1,
+                  textDirection: TextDirection.ltr,
+                )..layout();
+
+                // Check if text width exceeds the container width
+                if (textPainter.size.width > 280) {
+                  return Marquee(
+                    text: user.email,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    blankSpace: 20.0,
+                    velocity: 50.0,
+                    pauseAfterRound: const Duration(seconds: 3),
+                    startPadding: 10.0,
+                    accelerationDuration: const Duration(seconds: 2),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  );
+                } else {
+                  return Center(
+                    child: Text(
+                      user.email,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ),
         Padding(

@@ -192,7 +192,7 @@ class CommunityViewState extends State<CommunityView> {
                     itemBuilder: (context, index) {
                       final favour = allFavours[index];
                       return FavourCard(
-                        index: index,
+                        index: index + 1,
                         roomNo: favour.roomNo,
                         postedTime: formatTime(favour.timestamp),
                         postersBlock: favour.address,

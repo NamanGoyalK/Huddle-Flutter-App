@@ -95,12 +95,12 @@ class FavourCard extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
                         onTap: onDelete,
-                        child: const Padding(
-                          padding: EdgeInsets.only(top: 16.0),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
                           child: Text(
-                            'F A V O U R  C O M P L E T E',
+                            'F A V O U R  C O M P L E T E D  ?',
                             style: TextStyle(
-                              color: Colors.green,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                         ),
