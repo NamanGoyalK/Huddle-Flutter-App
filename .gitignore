@@ -76,5 +76,3 @@ google-services.json
 **/ios/.symlinks/
 **/ios/Pods/
 
-*.jks
-.firebaserc
