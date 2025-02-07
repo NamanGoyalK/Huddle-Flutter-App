@@ -163,7 +163,7 @@ class _UploadPostBlockState extends State<UploadPostBlock> {
       }
       setState(() {
         errorMessage =
-            'Your profile is incomplete. Please update your room number and block in the profile settings before creating a post.';
+            'Your profile is incomplete. Please update your room number and block in the profile settings and restart the app before creating a post.';
       });
       return;
     }

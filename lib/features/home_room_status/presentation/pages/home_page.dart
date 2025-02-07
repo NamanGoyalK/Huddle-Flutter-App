@@ -61,6 +61,18 @@ class HomeViewState extends State<HomeView> {
     postCubit = BlocProvider.of<PostCubit>(context);
     _loadUserProfile();
     _fetchAllPosts();
+    // Add this line to ensure we rebuild when auth state changes
+    final authCubit = context.read<AuthCubit>();
+    authCubit.stream.listen((state) {
+      if (state is Authenticated) {
+        _loadUserProfile();
+        _fetchAllPosts();
+      } else if (state is UnAuthenticated) {
+        setState(() {
+          userProfile = null;
+        });
+      }
+    });
   }
 
   DateTime getDateForIndex(int index) {
@@ -82,13 +94,15 @@ class HomeViewState extends State<HomeView> {
         ),
       );
     }
-    profileCubit.stream.listen((state) {
-      if (state is ProfileLoaded) {
-        setState(() {
-          userProfile = state.userProfile;
-        });
-      }
-    });
+    profileCubit.stream.listen(
+      (state) {
+        if (state is ProfileLoaded) {
+          setState(() {
+            userProfile = state.userProfile;
+          });
+        }
+      },
+    );
   }
 
   void _fetchAllPosts() {

@@ -214,12 +214,6 @@ class EditProfileContentState extends State<EditProfileContent> {
     final profileCubit = context.read<ProfileCubit>();
 
     // Check if room number is zero and block is selected
-    if (int.tryParse(roomNoController.text) == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room number cannot be zero.')),
-      );
-      return;
-    }
 
     if (selectedBlock == Block.select) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -228,6 +222,12 @@ class EditProfileContentState extends State<EditProfileContent> {
       return;
     }
 
+    if (int.tryParse(roomNoController.text) == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Room number cannot be zero.')),
+      );
+      return;
+    }
     await profileCubit.updateProfile(
       uid: widget.user.uid,
       newBio: bioController.text,
@@ -243,6 +243,12 @@ class EditProfileContentState extends State<EditProfileContent> {
     if (mounted) {
       Navigator.pop(context);
     }
+
+    showSnackBar(
+      context,
+      "Profile updated please restart the app for the changes to take effect.",
+      Colors.green,
+    );
   }
 
   Widget _buildHandleIndicator() {
