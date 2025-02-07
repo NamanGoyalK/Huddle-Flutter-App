@@ -59,11 +59,13 @@ class FavourCard extends StatelessWidget {
                   flex: 3,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         capitalizeFirstLetter(
                           postersName,
                         ),
+                        textAlign: TextAlign.end,
                       ),
                       Text(
                         postedTime.toString(),

@@ -48,10 +48,20 @@ class RoomStatusCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  flex: 2,
-                  child: Text(
-                    'Room ${roomNo.toString()}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${postersBlock.toString()} Block',
+                        style: const TextStyle(fontWeight: FontWeight.w400),
+                      ),
+                      Text(
+                        'Room ${roomNo.toString()}',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -78,7 +88,7 @@ class RoomStatusCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Posted by $postersName at ${formatTime(postedTime)} for $postersBlock block.',
+                    'Posted by $postersName at ${formatTime(postedTime)} on ${formatDay(postedTime.weekday)} for $postersBlock block.',
                   ),
                   const SizedBox(
                     height: 10,
