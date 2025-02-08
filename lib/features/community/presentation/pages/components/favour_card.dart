@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:huddle/common/widgets/filter_language.dart';
 
 class FavourCard extends StatelessWidget {
   final int roomNo;
@@ -90,7 +91,7 @@ class FavourCard extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    'Description: $postDescription',
+                    'Description: ${TextFilter.cleanText(postDescription)}',
                   ),
                   if (isUserFavor)
                     Align(
