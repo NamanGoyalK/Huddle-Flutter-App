@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:email_otp_auth/email_otp_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -277,7 +278,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     }
   }
 
-  void _register() {
+  void _register() async {
     final String name = _nameController.text.trim();
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
@@ -288,9 +289,18 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     }
 
     if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
-      context
-          .read<AuthCubit>()
-          .signupWithEmailAndPassword(name, email, password);
+      try {
+        await context
+            .read<AuthCubit>()
+            .signupWithEmailAndPassword(name, email, password);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          showSnackBar(
+              context, 'Weak password! Choose a stronger one.', Colors.red);
+        } else {
+          showSnackBar(context, e.message ?? 'Signup failed', Colors.red);
+        }
+      }
     } else {
       showSnackBar(context, 'Please fill in all the fields', Colors.red);
     }

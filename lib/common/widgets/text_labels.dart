@@ -179,8 +179,8 @@ class EmptyPostsPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: 20.0,
-        vertical: 120,
+        horizontal: 0.0,
+        vertical: 100,
       ),
       children: [
         SizedBox(

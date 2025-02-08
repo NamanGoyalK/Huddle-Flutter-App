@@ -106,7 +106,12 @@ class HomeViewState extends State<HomeView> {
   }
 
   void _fetchAllPosts() {
-    postCubit.fetchAllPosts();
+    postCubit.fetchAllPosts().then((_) {
+      final selectedDate =
+          getDateForIndex(context.read<DayCubit>().state.selectedIndex);
+      postCubit.filterPostsForDate(selectedDate);
+    });
+
     context.read<DayCubit>().stream.listen((state) {
       final selectedDate = getDateForIndex(state.selectedIndex);
       postCubit.filterPostsForDate(
@@ -190,7 +195,7 @@ class HomeViewState extends State<HomeView> {
 
   Positioned buildPostsList() {
     return Positioned(
-      top: 136,
+      top: 132,
       left: 80,
       right: -6,
       bottom: 75,
