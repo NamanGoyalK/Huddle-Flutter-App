@@ -163,7 +163,7 @@ class CommunityViewState extends State<CommunityView> {
 
   Positioned buildFavoursList() {
     return Positioned(
-      top: 136,
+      top: 116,
       left: 80,
       right: -6,
       bottom: 75,
