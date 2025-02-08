@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:huddle/common/widgets/filter_language.dart';
 import 'package:huddle/common/widgets/index.dart';
 
 class RoomStatusCard extends StatelessWidget {
@@ -95,7 +94,7 @@ class RoomStatusCard extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    'Description: ${TextFilter.cleanText(postDescription)}',
+                    'Description: ${(postDescription)}',
                   ),
                   if (showDeleteButton && onDelete != null)
                     Align(

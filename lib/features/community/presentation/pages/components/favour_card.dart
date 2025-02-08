@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:huddle/common/widgets/filter_language.dart';
 
 class FavourCard extends StatelessWidget {
   final int roomNo;
@@ -64,7 +63,7 @@ class FavourCard extends StatelessWidget {
                     children: [
                       Text(
                         capitalizeFirstLetter(
-                          postersName,
+                          postersName.split(' ')[0],
                         ),
                         textAlign: TextAlign.end,
                       ),
@@ -85,13 +84,13 @@ class FavourCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Posted at $postedTime in $postersBlock block.',
+                    'Posted by $postersName at $postedTime in $postersBlock block.',
                   ),
                   const SizedBox(
                     height: 10,
                   ),
                   Text(
-                    'Description: ${TextFilter.cleanText(postDescription)}',
+                    'Description: ${(postDescription)}',
                   ),
                   if (isUserFavor)
                     Align(
