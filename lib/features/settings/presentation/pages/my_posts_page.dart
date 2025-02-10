@@ -181,9 +181,9 @@ class MyPostsViewState extends State<MyPostsView> {
               ],
             ).createShader(bounds),
             child: const Text(
-              "This Week",
+              "History",
               style: TextStyle(
-                color: Colors.white,
+                // color: Colors.white,
                 fontSize: 50,
                 fontWeight: FontWeight.w200,
               ),

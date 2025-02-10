@@ -6,16 +6,19 @@ import 'package:huddle/common/config/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huddle/app.dart';
 
+import 'core/config/notifications/firebase_notifications.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  await SharedPreferences.getInstance();
   await _initializeFirebase();
+  await FirebaseNotifications().initNotifications();
   runApp(MyApp());
 }
 
 Future<void> _initializeFirebase() async {
   try {
-    MobileAds.instance.initialize();
-    await SharedPreferences.getInstance();
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
