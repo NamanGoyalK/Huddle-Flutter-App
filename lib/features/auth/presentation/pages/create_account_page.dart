@@ -165,6 +165,7 @@ class CreateAccountPageState extends State<CreateAccountPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildLoginWithGoogleButton(String googleLogo) {
     return Padding(
       padding: const EdgeInsets.all(4.0),

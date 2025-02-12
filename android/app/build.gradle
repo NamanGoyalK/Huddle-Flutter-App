@@ -30,7 +30,7 @@ android {
         applicationId = 'com.namangoyaldev.huddle'
         minSdk = 23
         targetSdk = 34
-        versionCode = 10
+        versionCode = 11
         versionName = '1.0.0'
     }
 
@@ -67,6 +67,9 @@ android {
         main {
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 

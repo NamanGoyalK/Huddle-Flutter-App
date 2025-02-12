@@ -180,6 +180,7 @@ class SignInPageState extends State<SignInPage> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildLoginWithGoogleButton(String googleLogo) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
