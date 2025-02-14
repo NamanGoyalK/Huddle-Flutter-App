@@ -195,7 +195,7 @@ class HomeViewState extends State<HomeView> {
 
   Positioned buildPostsList() {
     return Positioned(
-      top: 132,
+      top: 128,
       left: 80,
       right: -6,
       bottom: 75,
