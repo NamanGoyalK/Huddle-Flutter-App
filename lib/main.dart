@@ -2,11 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:huddle/common/config/firebase_options.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:huddle/app.dart';
 
 import 'core/config/notifications/firebase_notifications.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
