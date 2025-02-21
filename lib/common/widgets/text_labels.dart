@@ -217,7 +217,10 @@ class EmptyPostsPlaceholder extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 30),
-        const BannerAdWidget(), // Add Native Ad Card
+        const SizedBox(
+          width: double.infinity,
+          child: BannerAdWidget(),
+        ), // Add Native Ad Card
         const BannerAdWidget(),
         const BannerAdWidget(),
       ],

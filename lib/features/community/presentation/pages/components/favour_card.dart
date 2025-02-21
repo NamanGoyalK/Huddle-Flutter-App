@@ -49,9 +49,11 @@ class FavourCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Text(
-                    'Room ${roomNo.toString()}',
+                    capitalizeFirstLetter(
+                      postersName,
+                    ),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -62,9 +64,7 @@ class FavourCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        capitalizeFirstLetter(
-                          postersName.split(' ')[0],
-                        ),
+                        'Room ${roomNo.toString()}',
                         textAlign: TextAlign.end,
                       ),
                       Text(

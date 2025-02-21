@@ -182,22 +182,22 @@ class HomeViewState extends State<HomeView> {
       children: [
         dateTitle(selectedDate, isToday, context),
         buildPostsList(),
-        buildCustomNavButton(state),
         PageTitleSideWays(
           isDrawerOpen: state.isDrawerOpen,
           pageTitle: 'ROOM STATUS',
         ),
         buildBottomGradient(context),
         buildCreatePostButton(context),
+        buildCustomNavButton(state),
       ],
     );
   }
 
   Positioned buildPostsList() {
     return Positioned(
-      top: 128,
-      left: 80,
-      right: -6,
+      top: 126,
+      left: 54,
+      right: -12,
       bottom: 75,
       child: ClipRect(
         child: Padding(
@@ -309,7 +309,12 @@ class HomeViewState extends State<HomeView> {
             );
           }
         },
-        child: const Text('C R E A T E  P O S T'),
+        child: const Text(
+          'C R E A T E  P O S T',
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }

@@ -164,7 +164,7 @@ class CommunityViewState extends State<CommunityView> {
   Positioned buildFavoursList() {
     return Positioned(
       top: 116,
-      left: 80,
+      left: 64,
       right: -6,
       bottom: 75,
       child: ClipRect(

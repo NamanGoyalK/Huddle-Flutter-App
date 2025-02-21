@@ -30,7 +30,7 @@ android {
         applicationId = 'com.namangoyaldev.huddle'
         minSdk = 23
         targetSdk = 34
-        versionCode = 11
+        versionCode = 16
         versionName = '1.0.0'
     }
 

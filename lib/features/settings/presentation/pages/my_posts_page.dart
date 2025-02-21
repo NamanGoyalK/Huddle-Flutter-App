@@ -208,9 +208,9 @@ class MyPostsViewState extends State<MyPostsView> {
           ),
         ),
         Positioned(
-          top: 136,
-          left: 80,
-          right: -6,
+          top: 130,
+          left: 55,
+          right: -13,
           bottom: 0,
           child: ClipRect(
             child: Padding(
