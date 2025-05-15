@@ -25,10 +25,9 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-Flutter-App/refs/heads/main/demo_images.dart/1234567.png?token=GHSAT0AAAAAADD3OBOWQNSA4DZXMNKVH7W42BGGLQA" width="250"/>
-  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-Flutter-App/refs/heads/main/demo_images.dart/6182120.png?token=GHSAT0AAAAAADD3OBOXGL357SDUDKQZWKN42BGGMTQ" width="250"/>
-  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-Flutter-App/refs/heads/main/demo_images.dart/8689015.png?token=GHSAT0AAAAAADD3OBOWIHDHTBEDFJJG7B7U2BGGNBQ" width="250"/>
-  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-Flutter-App/refs/heads/main/demo_images.dart/8689054.png?token=GHSAT0AAAAAADD3OBOWV3XHY56LIATKLEOC2BGGNKA" width="250"/>
+  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-demo-images/refs/heads/main/1234567.png" width="250"/>
+  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-demo-images/refs/heads/main/6182120.png" width="250"/>
+  <img src="https://raw.githubusercontent.com/NamanGoyalK/Huddle-demo-images/refs/heads/main/8689054.png" width="250"/>
 </p>
 
 ---
