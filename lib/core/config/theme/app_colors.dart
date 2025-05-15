@@ -24,10 +24,8 @@ ThemeData appThemeDark() {
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor:
           Color.fromARGB(255, 45, 45, 45), // BottomSheet background color
-    ),
-    dialogBackgroundColor:
-        const Color.fromARGB(255, 45, 45, 45), // Dialog background color
-    useMaterial3: true,
+    ), // Dialog background color
+    useMaterial3: true, dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 45, 45, 45)),
   );
 }
 
@@ -51,9 +49,7 @@ ThemeData appThemeMain() {
       elevation: 0,
     ),
     cardColor:
-        const Color.fromARGB(255, 245, 245, 245), // Card background color
-    dialogBackgroundColor:
-        const Color.fromARGB(255, 250, 250, 250), // Dialog background color
-    useMaterial3: true,
+        const Color.fromARGB(255, 245, 245, 245), // Dialog background color
+    useMaterial3: true, dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 250, 250, 250)),
   );
 }
