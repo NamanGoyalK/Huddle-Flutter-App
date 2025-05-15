@@ -25,7 +25,9 @@ ThemeData appThemeDark() {
       backgroundColor:
           Color.fromARGB(255, 45, 45, 45), // BottomSheet background color
     ), // Dialog background color
-    useMaterial3: true, dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 45, 45, 45)),
+    useMaterial3: true,
+    dialogTheme:
+        const DialogThemeData(backgroundColor: Color.fromARGB(255, 45, 45, 45)),
   );
 }
 
@@ -50,6 +52,8 @@ ThemeData appThemeMain() {
     ),
     cardColor:
         const Color.fromARGB(255, 245, 245, 245), // Dialog background color
-    useMaterial3: true, dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 250, 250, 250)),
+    useMaterial3: true,
+    dialogTheme: const DialogThemeData(
+        backgroundColor: Color.fromARGB(255, 250, 250, 250)),
   );
 }
