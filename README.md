@@ -51,6 +51,7 @@ cd Huddle-Flutter-App
 flutter pub get
 flutter run
 ```
+> Avialable on play store at https://play.google.com/store/apps/details?id=com.namangoyaldev.huddle&pli=1
 
 ## 🌍 Contributing
 
