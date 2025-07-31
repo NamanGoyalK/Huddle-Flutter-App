@@ -57,23 +57,51 @@ class BannerAdWidgetState extends State<BannerAdWidget> {
         _isAdLoaded && _bannerAd != null
             ? Container(
                 alignment: Alignment.center,
-                width: _bannerAd!.size.width.toDouble(),
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Builder(
+                  builder: (context) {
+                    // Calculate responsive border radius based on ad height
+                    final adHeight = _bannerAd!.size.height.toDouble();
+                    final borderRadius = (adHeight * 0.08).clamp(4.0, 12.0);
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(borderRadius - 1.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: _bannerAd!.size.width.toDouble(),
+                            height: _bannerAd!.size.height.toDouble(),
+                            child: AdWidget(ad: _bannerAd!),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               )
             : _isAdFailed
-                ? SizedBox(
+                ? const SizedBox(
                     height: 0.1,
                     width: 20,
-                    child: LinearProgressIndicator(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
+                    child: SizedBox.shrink(),
                   )
                 : SizedBox(
-                    height: 0.3,
+                    height: 50,
                     width: 50,
-                    child: LinearProgressIndicator(
-                      color: Theme.of(context).colorScheme.secondary,
+                    child: Center(
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
                     ),
                   ),
       ],

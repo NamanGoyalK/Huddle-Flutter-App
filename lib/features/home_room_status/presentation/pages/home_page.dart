@@ -226,7 +226,11 @@ class HomeViewState extends State<HomeView> {
                     itemBuilder: (context, index) {
                       if (index % 5 == 4 ||
                           index == allPosts.length + (allPosts.length ~/ 4)) {
-                        return const BannerAdWidget(); // Show an ad every 4 posts and after the last post
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 10.0),
+                          child: BannerAdWidget(),
+                        ); // Show an ad every 4 posts and after the last post
                       } else {
                         final postIndex = index - (index ~/ 5);
                         final post = allPosts[postIndex];

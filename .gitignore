@@ -76,3 +76,5 @@ google-services.json
 **/ios/.symlinks/
 **/ios/Pods/
 app-ads.txt
+lib/common/widgets/ad_mob_ads.dart
+ad_mob_ads.dart
